@@ -6,7 +6,6 @@ class AddressController {
 	async index(req, res) {
 		const address = await Address.findAll({
 			order: ['id'],
-			where: { active: true }
 		});
 		return res.json(
 			content(address)

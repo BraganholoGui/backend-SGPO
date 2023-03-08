@@ -47,11 +47,8 @@
     "pg": "^7.11.0",
     "pg-hstore": "^2.3.3",
     "pino": "^7.8.1",
-    "qrcode": "^1.4.4",
     "read-excel-file": "^5.5.3",
     "sequelize": "^6.19.0",
-    "swagger-autogen": "^2.18.8",
-    "swagger-ui-express": "^4.1.4",
     "youch": "^2.0.10",
     "yup": "^0.27.0"
   },

@@ -1,9 +1,9 @@
 import Sequelize from 'sequelize';
 import databaseConfig from '../config/database.js';
-import Address from '../app/models/Address.js';
+import Contact from '../app/models/contact.js';
 
 const models = [
-  Address,
+  Contact,
 ]
 
 class Database {
