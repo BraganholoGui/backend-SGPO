@@ -1,21 +1,20 @@
 import Sequelize, { Model } from 'sequelize';
 
-class Contact extends Model {
+class Role extends Model {
 
 	static init(sequelize) {
 		super.init(
 			{
-        email: Sequelize.STRING,
-        phone: Sequelize.STRING,
+        name: Sequelize.STRING,
       },
       {
         sequelize,
         freezeTableName: true,
-        tableName: 'contact',
+        tableName: 'role',
       }
     );
     return this;
   }
 }
 
-export default Contact;
+export default Role;

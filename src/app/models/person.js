@@ -10,7 +10,7 @@ class Person extends Model {
       {
         sequelize,
         freezeTableName: true,
-        tableName: 'people',
+        tableName: 'Person',
       }
     );
     return this;

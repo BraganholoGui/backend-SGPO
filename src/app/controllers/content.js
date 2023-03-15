@@ -13,7 +13,7 @@ const content = (obj) => {
 
  function getContent(obj) {
    let meta = {
-     server: 'localhost:8001/',
+     server: 'localhost:6001/',
      count: obj.count ? obj.count : obj.length > 0 ? obj.length : 0,
      limit: obj.pg ? obj.pg.limit || 100 : 100,
      offset: obj.pg ? obj.pg.offset || 0 : 0,

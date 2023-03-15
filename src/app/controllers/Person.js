@@ -7,7 +7,6 @@ class PersonController {
 	async index(req, res) {
 		const people = await Person.findAll({
 			order: ['id'],
-			where: { active: true }
 		});
 		return res.json(
 			content(people)
