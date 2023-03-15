@@ -7,8 +7,6 @@ import cors from './app/middlewares/cors.js';
 import './database/index.js';
 import routes from './routes.js';
 import bodyParser from 'body-parser';
-import pino from 'pino';
-import expressPinoLogger from 'express-pino-logger';
 import path from 'path';
 
 const __dirname = new URL('.', import.meta.url).pathname;
@@ -32,27 +30,18 @@ class App {
       '/files',
       express.static(path.resolve(__dirname, '..', 'tmp', 'uploads'))
     );
-    this.server.use(expressPinoLogger({
-      logger: pino(),
-      autoLogging: true
-    }))
   }
 
   routes() {
-    // this.server.use('/api', routes);
     this.server.use(routes);
     this.server.use(Sentry.Handlers.errorHandler());
   }
 
   exceptionHandler() {
     this.server.use(async (err, req, res, next) => {
-      //if (process.env.NODE_ENV === 'development') {
       const errors = await new Youch(err, req).toJSON();
 
       return res.status(500).json(errors);
-      //}
-
-      //return res.status(500).json({ error: 'Internal Server Error' });
     });
   }
 }

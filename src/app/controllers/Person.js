@@ -1,4 +1,4 @@
-import Person from '../models/Person.js';
+import Person from '../models/person.js';
 import content from './content.js';
 
 

@@ -5,11 +5,8 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import path from 'path';
 import database from '../../database/index.js';
-import Address from '../models/Address.js';
-import UserMenu from '../models/UserMenu.js';
-import Person from '../models/Person.js';
-import PhysicalPerson from '../models/PhysicalPerson.js';
-import User from '../models/User.js';
+import Person from '../models/person.js';
+import User from '../models/user.js';
 import content from './content.js';
 import utils from './utils.js';
 import {
@@ -18,12 +15,10 @@ import {
 import {
     date
 } from 'yup';
-import Task from '../models/Task.js';
 import { Op } from "sequelize";
-import Role from '../models/Role.js';
-import Contact from '../models/Contact.js';
-import Unit from '../models/Unit.js';
-// import { fstat } from 'hexo-fs';
+import Role from '../models/role.js';
+import Contact from '../models/contact.js';
+import Team from '../models/team.js';
 
 const sequelize = database.connection;
 
@@ -31,57 +26,53 @@ const sequelize = database.connection;
 
 
 let include = [
-    // utils.include(PhysicalPerson, { active: true }, true, null,
-    //     utils.include(Person, { active: true }, true, null, [
-    //         utils.include(Address, { active: true }, true, null, null, null),
-    //         utils.include(Contact, { active: true }, true, null, null, null),
-    //     ]), 'pf'),
-    // utils.include(Role, { active: true }, true, null, null, null),
+    utils.include(Person, { id: true }, true, null, null, null),
+    utils.include(Role, { id: true }, true, null, null, null),
+    utils.include(Team, { id: true }, true, null, null, null),
 ];
 class UserController {
 
 
     async index(req, res) {
         try {
-            let start = req.query.start ? req.query.start.replace(/T[0-9][0-9]/i, "T00") : null;
-            let end = req.query.end ? req.query.end.replace(/T[0-9][0-9]/i, "T23") : null;
-            let dateWhere = null;
+            // let start = req.query.start ? req.query.start.replace(/T[0-9][0-9]/i, "T00") : null;
+            // let end = req.query.end ? req.query.end.replace(/T[0-9][0-9]/i, "T23") : null;
+            // let dateWhere = null;
 
-            if (start && end) {
-                dateWhere = {
-                    [Op.between]: [start, end]
-                };
-            } else if (start && !end) {
-                dateWhere = {
-                    [Op.gte]: start
-                };
-            } else if (!start && end) {
-                dateWhere = {
-                    [Op.lte]: end
-                }
-            }
+            // if (start && end) {
+            //     dateWhere = {
+            //         [Op.between]: [start, end]
+            //     };
+            // } else if (start && !end) {
+            //     dateWhere = {
+            //         [Op.gte]: start
+            //     };
+            // } else if (!start && end) {
+            //     dateWhere = {
+            //         [Op.lte]: end
+            //     }
+            // }
 
-            let where = {
-                active: true
-            }
+            // let where = {
+            //     active: true
+            // }
 
-            if (dateWhere) {
-                where[Op.or] = [{
-                    created_at: dateWhere
-                }]
-            }
+            // if (dateWhere) {
+            //     where[Op.or] = [{
+            //         created_at: dateWhere
+            //     }]
+            // }
 
-            let unitWhere = req.query.unit;
-            if (unitWhere) {
-                include.push(utils.include(Unit, { active: true, id: unitWhere }, true, null))
-            } else {
-                include.push(utils.include(Unit, { active: true }, false, null))
-            }
+            // let unitWhere = req.query.unit;
+            // if (unitWhere) {
+            //     include.push(utils.include(Unit, { active: true, id: unitWhere }, true, null))
+            // } else {
+            //     include.push(utils.include(Unit, { active: true }, false, null))
+            // }
 
             const users = await User.findAll({
                 order: ['id'],
-                // where: where,
-                // include
+                include
             });
             return res.json(
                 content(users)
@@ -114,38 +105,16 @@ class UserController {
             if (data.password) {
                 data.password = await bcrypt.hash(data.password, 8);
             }
-            let role_stored;
-            if (data.role.id) {
-                role_stored = data.role;
-            } else {
-                role_stored = await Role.create(data.role, {
-                    transaction
-                });
-            }
 
-
-            data.address.cep = data.address.cep.toString().replace('.', '');
-            data.address.cep = data.address.cep.toString().replace('-', '');
-            data.physical_person.company = 1;
-
-            let address_stored = await Address.create(data.address, {
-                transaction
-            });
             let contact_stored;
             if (data.contact) {
-                // data.contact.phone = data.contact.phone.toString().replace('(', '');
-                // data.contact.phone = data.contact.phone.toString().replace(')', '');
-                // data.contact.phone = data.contact.phone.toString().replace('-', '');
                 contact_stored = await Contact.create(data.contact, {
                     transaction
                 });
-
             }
 
             let person_obj = {
                 name: data.person.name,
-                birth_date: data.person.birth_date,
-                address: address_stored.id,
                 contact: contact_stored.id
             }
 
@@ -153,57 +122,19 @@ class UserController {
                 transaction
             });
 
-            let physical_person_obj = {
-                cpf: data.physical_person.cpf,
-                rg: data.physical_person.rg,
-                person: person_stored.id,
-                company: 1
-            }
-
-            let physical_person_stored = await PhysicalPerson.create(physical_person_obj, {
-                transaction
-            });
-
             let user_obj = {
-                unit: data.unit.id,
-                email: data.email,
+                access_name: data.access_name,
                 password_hash: data.password,
-                physical_person: physical_person_stored.id,
-                company: 1,
-                role: role_stored.id,
-                hierarchy: data.hierarchy,
+                person: person_stored.id,
+                team: data.team,
+                role: data.role,
             }
 
             let user_stored = await User.create(user_obj, {
                 transaction
             });
 
-            if (data.menus) {
-                await Promise.all(data.menus.map(async (element) => {
-                    await Promise.all(element.children.map(async (children) => {
-                        // children.permission_read = 1
-                        if (children.url != '/users') {
-                            if (children.permission_read || children.permission_write || children.permission_delete) {
-                                let user_menu = {
-                                    menu: children.menu,
-                                    user: user_stored.id,
-                                    permission_read: children.permission_read,
-                                    permission_write: children.permission_write,
-                                    permission_delete: children.permission_delete
-                                };
-                                await UserMenu.create(user_menu, { transaction });
-                            }
-
-                        }
-                    }));
-                }));
-            }
-
-
             await transaction.commit();
-
-            // await sendEmail(data.email, user_stored.id, res);
-
             return res.json(user_stored);
 
         } catch (error) {
@@ -329,10 +260,7 @@ class UserController {
                 error: 'This User does not exists!'
             });
 
-        await user.update({
-            active: false
-        });
-        // await user.destroy();
+        await user.destroy();
         return res.status(200).json({
             message: 'User successfully deleted!'
         });

@@ -7,6 +7,8 @@ import Session from './app/controllers/Session.js'
 import Contact from './app/controllers/Contact.js'
 import Role from './app/controllers/Role.js'
 import Person from './app/controllers/Person.js'
+import Team from './app/controllers/Team.js'
+import User from './app/controllers/User.js'
 
 const routes = new Router()
 
@@ -37,5 +39,19 @@ routes.put('/people/:id', Person.update)
 routes.get('/people', Person.index)
 routes.get('/people/:id', Person.getById)
 routes.delete('/people/:id', Person.delete)
+
+// Team
+routes.post('/teams', Team.store)
+routes.put('/teams/:id', Team.update)
+routes.get('/teams', Team.index)
+routes.get('/teams/:id', Team.getById)
+routes.delete('/teams/:id', Team.delete)
+
+// User
+routes.post('/users', User.store)
+routes.put('/users/:id', User.update)
+routes.get('/users', User.index)
+routes.get('/users/:id', User.getById)
+routes.delete('/users/:id', User.delete)
 
 export default routes;
