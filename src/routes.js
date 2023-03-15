@@ -9,6 +9,9 @@ import Role from './app/controllers/Role.js'
 import Person from './app/controllers/Person.js'
 import Team from './app/controllers/Team.js'
 import User from './app/controllers/User.js'
+import Theme from './app/controllers/Theme.js'
+import Priority from './app/controllers/Priority.js'
+import Status from './app/controllers/Status.js'
 
 const routes = new Router()
 
@@ -40,12 +43,33 @@ routes.get('/people', Person.index)
 routes.get('/people/:id', Person.getById)
 routes.delete('/people/:id', Person.delete)
 
+// Priority
+routes.post('/priorities', Priority.store)
+routes.put('/priorities/:id', Priority.update)
+routes.get('/priorities', Priority.index)
+routes.get('/priorities/:id', Priority.getById)
+routes.delete('/priorities/:id', Priority.delete)
+
 // Team
 routes.post('/teams', Team.store)
 routes.put('/teams/:id', Team.update)
 routes.get('/teams', Team.index)
 routes.get('/teams/:id', Team.getById)
 routes.delete('/teams/:id', Team.delete)
+
+// Status
+routes.post('/status', Status.store)
+routes.put('/status/:id', Status.update)
+routes.get('/status', Status.index)
+routes.get('/status/:id', Status.getById)
+routes.delete('/status/:id', Status.delete)
+
+// Theme
+routes.post('/themes', Theme.store)
+routes.put('/themes/:id', Theme.update)
+routes.get('/themes', Theme.index)
+routes.get('/themes/:id', Theme.getById)
+routes.delete('/themes/:id', Theme.delete)
 
 // User
 routes.post('/users', User.store)
