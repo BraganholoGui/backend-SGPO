@@ -8,15 +8,19 @@ import User from '../app/models/user.js';
 import Priority from '../app/models/priority.js';
 import Theme from '../app/models/theme.js';
 import Status from '../app/models/status.js';
+import Goal from '../app/models/goal.js';
+import Task from '../app/models/task.js';
 
 const models = [
   Contact,
   Role,
   Team,
   Person,
+  Goal,
   Priority,
   Status,
   Theme,
+  Task,
   User,
 ]
 

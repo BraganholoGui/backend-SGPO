@@ -12,6 +12,7 @@ import User from './app/controllers/User.js'
 import Theme from './app/controllers/Theme.js'
 import Priority from './app/controllers/Priority.js'
 import Status from './app/controllers/Status.js'
+import Goal from './app/controllers/Goal.js'
 
 const routes = new Router()
 
@@ -28,6 +29,13 @@ routes.get('/contacts', Contact.index)
 routes.post('/contacts', Contact.store)
 routes.put('/contacts/:id', Contact.update)
 routes.delete('/contacts/:id', Contact.delete)
+
+//Goal
+routes.get('/goals/:id', Goal.getById)
+routes.get('/goals', Goal.index)
+routes.post('/goals', Goal.store)
+routes.put('/goals/:id', Goal.update)
+routes.delete('/goals/:id', Goal.delete)
 
 // Role
 routes.post('/roles', Role.store)
