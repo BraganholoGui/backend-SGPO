@@ -21,6 +21,7 @@ import Stock from './app/controllers/Stock.js'
 import Supplier from './app/controllers/Supplier.js'
 import Purchase from './app/controllers/Purchase.js'
 import Sale from './app/controllers/Sale.js'
+import SupplierPurchase from './app/controllers/SupplierPurchase.js'
 
 const routes = new Router()
 
@@ -132,6 +133,13 @@ routes.put('/suppliers/:id', Supplier.update)
 routes.get('/suppliers', Supplier.index)
 routes.get('/suppliers/:id', Supplier.getById)
 routes.delete('/suppliers/:id', Supplier.delete)
+
+// SupplierPurchase
+routes.post('/supplier-purchases', SupplierPurchase.store)
+routes.put('/supplier-purchases/:id', SupplierPurchase.update)
+routes.get('/supplier-purchases', SupplierPurchase.index)
+routes.get('/supplier-purchases/:id', SupplierPurchase.getById)
+routes.delete('/supplier-purchases/:id', SupplierPurchase.delete)
 
 // Theme
 routes.post('/themes', Theme.store)

@@ -18,6 +18,7 @@ import Supplier from '../app/models/supplier.js';
 import TeamUser from '../app/models/teamUser.js';
 import Purchase from '../app/models/purchase.js';
 import Sale from '../app/models/sale.js';
+import SupplierPurchase from '../app/models/supplierPurchase.js';
 
 const models = [
   Buyer,
@@ -33,6 +34,7 @@ const models = [
   Status,
   Stock,
   Supplier,
+  SupplierPurchase,
   Team,
   TeamUser,
   Theme,
