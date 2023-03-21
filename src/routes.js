@@ -110,7 +110,7 @@ routes.delete('/teams/:id', Team.delete)
 routes.post('/sales', Sale.store)
 routes.put('/sales/:id', Sale.update)
 routes.get('/sales', Sale.index)
-routes.get('/sales/:id', Salee.getById)
+routes.get('/sales/:id', Sale.getById)
 routes.delete('/sales/:id', Sale.delete)
 
 // Status

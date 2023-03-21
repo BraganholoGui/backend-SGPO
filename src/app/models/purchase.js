@@ -5,7 +5,7 @@ class Purchase extends Model {
 		super.init(
 			{
         product: Sequelize.INTEGER,
-        meterial: Sequelize.INTEGER,
+        material: Sequelize.INTEGER,
         price: Sequelize.FLOAT,
         quantity: Sequelize.INTEGER,
       },
@@ -19,7 +19,7 @@ class Purchase extends Model {
   }
 
   static associate(models) {
-    this.belongsTo(models.Product, {foreignKey: 'product'}),
+    this.belongsTo(models.Product, {foreignKey: 'product'})
     this.belongsTo(models.Material, {foreignKey: 'material'})
   }
 }
