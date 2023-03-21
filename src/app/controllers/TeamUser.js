@@ -1,23 +1,20 @@
-import bcrypt from 'bcryptjs';
 import 'dotenv';
-
 import database from '../../database/index.js';
 import Person from '../models/person.js';
-import Supplier from '../models/supplier.js';
+import TeamUser from '../models/teamUser.js';
 import content from './content.js';
-import Role from '../models/role.js';
 import Contact from '../models/contact.js';
 
 const sequelize = database.connection;
 
-class SupplierController {
+class TeamUserController {
     async index(req, res) {
         try {
-            const suppliers = await Supplier.findAll({
+            const team_users = await TeamUser.findAll({
                 order: ['id'],
             });
             return res.json(
-                content(suppliers)
+                content(team_users)
             );
         } catch (e) {
             console.error(e)
@@ -26,7 +23,7 @@ class SupplierController {
     }
     async getById(req, res) {
 
-        const supplier = await Supplier.findOne({
+        const team_user = await TeamUser.findOne({
             where: {
                 id: req.params.id,
             },
@@ -34,7 +31,7 @@ class SupplierController {
         });
 
         return res.status(200).json({
-            supplier,
+            team_user,
         });
     }
 
@@ -43,12 +40,12 @@ class SupplierController {
         try {
             let data = req.body
 
-            let supplier_stored = await Supplier.create(data, {
+            let team_user_stored = await TeamUser.create(data, {
                 transaction
             });
 
             await transaction.commit();
-            return res.json(supplier_stored);
+            return res.json(team_user_stored);
 
         } catch (error) {
             await transaction.rollback();
@@ -60,11 +57,11 @@ class SupplierController {
 
     async update(req, res) {
 
-        const supplier = await Supplier.findByPk(req.params.id);
+        const team_user = await TeamUser.findByPk(req.params.id);
 
-        if (!supplier) {
+        if (!team_user) {
             return res.status(404).json({
-                error: 'Supplier not found!'
+                error: 'TeamUser not found!'
             });
         }
 
@@ -72,13 +69,13 @@ class SupplierController {
         try {
             let data = req.body
 
-            let supplier_updated = await Supplier.update(data, { where: { id: supplier.id }, transaction })
+            let team_user_updated = await TeamUser.update(data, { where: { id: team_user.id }, transaction })
 
             await transaction.commit();
 
             // await sendEmail(data.email, user_updated.id, res);
 
-            return res.json(supplier_updated);
+            return res.json(team_user_updated);
 
         } catch (error) {
             await transaction.rollback();
@@ -90,23 +87,23 @@ class SupplierController {
 
     async delete(req, res) {
 
-        const supplier = await Supplier.findOne({
+        const team_user = await TeamUser.findOne({
             where: {
                 id: req.params.id
             }
         });
 
-        if (!supplier)
+        if (!team_user)
             return res.status(400).json({
-                error: 'This Supplier does not exists!'
+                error: 'This TeamUser does not exists!'
             });
 
-        await supplier.destroy();
+        await team_user.destroy();
         return res.status(200).json({
-            message: 'Supplier successfully deleted!'
+            message: 'TeamUser successfully deleted!'
         });
     }
 
 }
 
-export default new SupplierController();
+export default new TeamUserController();

@@ -15,6 +15,7 @@ import Material from '../app/models/material.js';
 import Buyer from '../app/models/buyer.js';
 import Stock from '../app/models/stock.js';
 import Supplier from '../app/models/supplier.js';
+import TeamUser from '../app/models/teamUser.js';
 
 const models = [
   Buyer,
@@ -29,6 +30,7 @@ const models = [
   Stock,
   Supplier,
   Team,
+  TeamUser,
   Theme,
   Task,
   User,
