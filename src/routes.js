@@ -18,6 +18,7 @@ import Product from './app/controllers/Product.js'
 import Material from './app/controllers/Material.js'
 import Buyer from './app/controllers/Buyer.js'
 import Stock from './app/controllers/Stock.js'
+import Supplier from './app/controllers/Supplier.js'
 
 const routes = new Router()
 
@@ -108,6 +109,13 @@ routes.put('/stoks/:id', Stock.update)
 routes.get('/stoks', Stock.index)
 routes.get('/stoks/:id', Stock.getById)
 routes.delete('/stoks/:id', Stock.delete)
+
+// Supplier
+routes.post('/suppliers', Supplier.store)
+routes.put('/suppliers/:id', Supplier.update)
+routes.get('/suppliers', Supplier.index)
+routes.get('/suppliers/:id', Supplier.getById)
+routes.delete('/suppliers/:id', Supplier.delete)
 
 // Theme
 routes.post('/themes', Theme.store)
