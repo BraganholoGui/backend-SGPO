@@ -14,6 +14,8 @@ import Priority from './app/controllers/Priority.js'
 import Status from './app/controllers/Status.js'
 import Goal from './app/controllers/Goal.js'
 import Task from './app/controllers/Task.js'
+import Product from './app/controllers/Product.js'
+import Material from './app/controllers/Material.js'
 
 const routes = new Router()
 
@@ -38,6 +40,13 @@ routes.post('/goals', Goal.store)
 routes.put('/goals/:id', Goal.update)
 routes.delete('/goals/:id', Goal.delete)
 
+//Material
+routes.get('/materials/:id', Material.getById)
+routes.get('/materials', Material.index)
+routes.post('/materials', Material.store)
+routes.put('/materials/:id', Material.update)
+routes.delete('/materials/:id', Material.delete)
+
 // Role
 routes.post('/roles', Role.store)
 routes.put('/roles/:id', Role.update)
@@ -51,6 +60,13 @@ routes.put('/people/:id', Person.update)
 routes.get('/people', Person.index)
 routes.get('/people/:id', Person.getById)
 routes.delete('/people/:id', Person.delete)
+
+// Product
+routes.post('/products', Product.store)
+routes.put('/products/:id', Product.update)
+routes.get('/products', Product.index)
+routes.get('/products/:id', Product.getById)
+routes.delete('/products/:id', Product.delete)
 
 // Priority
 routes.post('/priorities', Priority.store)

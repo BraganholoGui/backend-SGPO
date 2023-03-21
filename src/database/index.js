@@ -10,15 +10,19 @@ import Theme from '../app/models/theme.js';
 import Status from '../app/models/status.js';
 import Goal from '../app/models/goal.js';
 import Task from '../app/models/task.js';
+import Product from '../app/models/product.js';
+import Material from '../app/models/material.js';
 
 const models = [
   Contact,
-  Role,
-  Team,
-  Person,
   Goal,
+  Material,
+  Person,
   Priority,
+  Product,
+  Role,
   Status,
+  Team,
   Theme,
   Task,
   User,
