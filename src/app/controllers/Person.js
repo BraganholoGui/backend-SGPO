@@ -15,7 +15,7 @@ class PersonController {
 
 	async getById(req, res) {
 
-		const person = await Person.findOne({ where: { id: req.params.id, active: true } });
+		const person = await Person.findOne({ where: { id: req.params.id,  } });
 
 		return res.status(200).json(
 			content(person)

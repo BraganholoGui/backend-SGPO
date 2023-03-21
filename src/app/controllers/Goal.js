@@ -15,7 +15,7 @@ class GoalController {
 
 	async getById(req, res) {
 
-		const goal = await Goal.findOne({ where: { id: req.params.id, active: true } });
+		const goal = await Goal.findOne({ where: { id: req.params.id,  } });
 
 		return res.status(200).json(
 			content(goal)

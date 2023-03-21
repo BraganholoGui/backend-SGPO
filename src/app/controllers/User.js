@@ -54,7 +54,7 @@ class UserController {
             // }
 
             // let where = {
-            //     active: true
+            //     
             // }
 
             // if (dateWhere) {
@@ -65,9 +65,9 @@ class UserController {
 
             // let unitWhere = req.query.unit;
             // if (unitWhere) {
-            //     include.push(utils.include(Unit, { active: true, id: unitWhere }, true, null))
+            //     include.push(utils.include(Unit, { , id: unitWhere }, true, null))
             // } else {
-            //     include.push(utils.include(Unit, { active: true }, false, null))
+            //     include.push(utils.include(Unit, {  }, false, null))
             // }
 
             const users = await User.findAll({
@@ -87,7 +87,7 @@ class UserController {
         const user = await User.findOne({
             where: {
                 id: req.params.id,
-                active: true
+                
             },
             include
         });
@@ -433,7 +433,6 @@ class UserController {
                 password_hash: password,
                 company: '1',
                 pf: '1',
-                active: true,
                 created_at: new Date,
                 updated_at: new Date
             }

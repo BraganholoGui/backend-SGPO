@@ -13,7 +13,7 @@ class StatusController {
 
 	async getById(req, res) {
 
-		const status = await Status.findOne({ where: { id: req.params.id, active: true } });
+		const status = await Status.findOne({ where: { id: req.params.id,  } });
 
 		return res.status(200).json({
 			status,

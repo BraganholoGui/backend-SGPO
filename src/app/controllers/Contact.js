@@ -14,7 +14,7 @@ class ContactController {
 
 	async getById(req, res) {
 
-		const contact = await Contact.findOne({ where: { id: req.params.id, active: true } });
+		const contact = await Contact.findOne({ where: { id: req.params.id,  } });
 
 		return res.status(200).json({
 			contact,

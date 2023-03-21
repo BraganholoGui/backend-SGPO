@@ -13,6 +13,7 @@ import Theme from './app/controllers/Theme.js'
 import Priority from './app/controllers/Priority.js'
 import Status from './app/controllers/Status.js'
 import Goal from './app/controllers/Goal.js'
+import Task from './app/controllers/Task.js'
 
 const routes = new Router()
 
@@ -57,6 +58,13 @@ routes.put('/priorities/:id', Priority.update)
 routes.get('/priorities', Priority.index)
 routes.get('/priorities/:id', Priority.getById)
 routes.delete('/priorities/:id', Priority.delete)
+
+// Task
+routes.post('/tasks', Task.store)
+routes.put('/tasks/:id', Task.update)
+routes.get('/tasks', Task.index)
+routes.get('/tasks/:id', Task.getById)
+routes.delete('/tasks/:id', Task.delete)
 
 // Team
 routes.post('/teams', Team.store)

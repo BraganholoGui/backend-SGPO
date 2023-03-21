@@ -13,7 +13,7 @@ class ThemeController {
 
 	async getById(req, res) {
 
-		const theme = await Theme.findOne({ where: { id: req.params.id, active: true } });
+		const theme = await Theme.findOne({ where: { id: req.params.id,  } });
 
 		return res.status(200).json({
 			theme,

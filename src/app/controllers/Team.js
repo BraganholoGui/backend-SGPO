@@ -13,7 +13,7 @@ class TeamController {
 
 	async getById(req, res) {
 
-		const team = await Team.findOne({ where: { id: req.params.id, active: true } });
+		const team = await Team.findOne({ where: { id: req.params.id,  } });
 
 		return res.status(200).json({
 			team,

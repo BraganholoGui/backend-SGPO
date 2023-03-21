@@ -13,7 +13,7 @@ class PriorityController {
 
 	async getById(req, res) {
 
-		const priority = await Priority.findOne({ where: { id: req.params.id, active: true } });
+		const priority = await Priority.findOne({ where: { id: req.params.id,  } });
 
 		return res.status(200).json({
 			priority,
