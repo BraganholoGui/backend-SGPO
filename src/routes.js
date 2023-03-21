@@ -16,6 +16,7 @@ import Goal from './app/controllers/Goal.js'
 import Task from './app/controllers/Task.js'
 import Product from './app/controllers/Product.js'
 import Material from './app/controllers/Material.js'
+import Buyer from './app/controllers/Buyer.js'
 
 const routes = new Router()
 
@@ -23,8 +24,12 @@ routes.use(authMiddleware)
 //Ping
 routes.get("/ping", ApiPing.index)
 
-// routes.post('/recuperacao/senha', User.reenviarSenha)
-// routes.post('/updated/password', User.atualizarSenha)
+//Buyer
+routes.get('/buyers/:id', Buyer.getById)
+routes.get('/buyers', Buyer.index)
+routes.post('/buyers', Buyer.store)
+routes.put('/buyers/:id', Buyer.update)
+routes.delete('/buyers/:id', Buyer.delete)
 
 //Contact
 routes.get('/contacts/:id', Contact.getById)

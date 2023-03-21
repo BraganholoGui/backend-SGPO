@@ -12,8 +12,10 @@ import Goal from '../app/models/goal.js';
 import Task from '../app/models/task.js';
 import Product from '../app/models/product.js';
 import Material from '../app/models/material.js';
+import Buyer from '../app/models/buyer.js';
 
 const models = [
+  Buyer,
   Contact,
   Goal,
   Material,
