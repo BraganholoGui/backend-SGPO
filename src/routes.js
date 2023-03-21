@@ -19,6 +19,8 @@ import Material from './app/controllers/Material.js'
 import Buyer from './app/controllers/Buyer.js'
 import Stock from './app/controllers/Stock.js'
 import Supplier from './app/controllers/Supplier.js'
+import Purchase from './app/controllers/Purchase.js'
+import Sale from './app/controllers/Sale.js'
 
 const routes = new Router()
 
@@ -82,6 +84,13 @@ routes.get('/priorities', Priority.index)
 routes.get('/priorities/:id', Priority.getById)
 routes.delete('/priorities/:id', Priority.delete)
 
+// Purchase
+routes.post('/purchases', Purchase.store)
+routes.put('/purchases/:id', Purchase.update)
+routes.get('/purchases', Purchase.index)
+routes.get('/purchases/:id', Purchase.getById)
+routes.delete('/purchases/:id', Purchase.delete)
+
 // Task
 routes.post('/tasks', Task.store)
 routes.put('/tasks/:id', Task.update)
@@ -95,6 +104,13 @@ routes.put('/teams/:id', Team.update)
 routes.get('/teams', Team.index)
 routes.get('/teams/:id', Team.getById)
 routes.delete('/teams/:id', Team.delete)
+
+// Sale
+routes.post('/sales', Sale.store)
+routes.put('/sales/:id', Sale.update)
+routes.get('/sales', Sale.index)
+routes.get('/sales/:id', Salee.getById)
+routes.delete('/sales/:id', Sale.delete)
 
 // Status
 routes.post('/status', Status.store)

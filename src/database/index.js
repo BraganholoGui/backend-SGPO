@@ -16,6 +16,8 @@ import Buyer from '../app/models/buyer.js';
 import Stock from '../app/models/stock.js';
 import Supplier from '../app/models/supplier.js';
 import TeamUser from '../app/models/teamUser.js';
+import Purchase from '../app/models/purchase.js';
+import Sale from '../app/models/sale.js';
 
 const models = [
   Buyer,
@@ -25,7 +27,9 @@ const models = [
   Person,
   Priority,
   Product,
+  Purchase,
   Role,
+  Sale,
   Status,
   Stock,
   Supplier,
