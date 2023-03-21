@@ -17,6 +17,7 @@ import Task from './app/controllers/Task.js'
 import Product from './app/controllers/Product.js'
 import Material from './app/controllers/Material.js'
 import Buyer from './app/controllers/Buyer.js'
+import Stock from './app/controllers/Stock.js'
 
 const routes = new Router()
 
@@ -100,6 +101,13 @@ routes.put('/status/:id', Status.update)
 routes.get('/status', Status.index)
 routes.get('/status/:id', Status.getById)
 routes.delete('/status/:id', Status.delete)
+
+// Stock
+routes.post('/stoks', Stock.store)
+routes.put('/stoks/:id', Stock.update)
+routes.get('/stoks', Stock.index)
+routes.get('/stoks/:id', Stock.getById)
+routes.delete('/stoks/:id', Stock.delete)
 
 // Theme
 routes.post('/themes', Theme.store)

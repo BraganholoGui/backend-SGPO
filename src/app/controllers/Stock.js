@@ -1,23 +1,20 @@
-import bcrypt from 'bcryptjs';
 import 'dotenv';
-
 import database from '../../database/index.js';
 import Person from '../models/person.js';
-import Buyer from '../models/buyer.js';
+import Stock from '../models/stock.js';
 import content from './content.js';
-import Role from '../models/role.js';
 import Contact from '../models/contact.js';
 
 const sequelize = database.connection;
 
-class BuyerController {
+class StockController {
     async index(req, res) {
         try {
-            const buyers = await Buyer.findAll({
+            const stocks = await Stock.findAll({
                 order: ['id'],
             });
             return res.json(
-                content(buyers)
+                content(stocks)
             );
         } catch (e) {
             console.error(e)
@@ -26,7 +23,7 @@ class BuyerController {
     }
     async getById(req, res) {
 
-        const buyer = await Buyer.findOne({
+        const stock = await Stock.findOne({
             where: {
                 id: req.params.id,
             },
@@ -34,7 +31,7 @@ class BuyerController {
         });
 
         return res.status(200).json({
-            buyer,
+            stock,
         });
     }
 
@@ -67,7 +64,7 @@ class BuyerController {
                 role: data.role,
             }
 
-            let buyer_stored = await Buyer.create(buyer_obj, {
+            let buyer_stored = await Stock.create(buyer_obj, {
                 transaction
             });
 
@@ -84,11 +81,11 @@ class BuyerController {
 
     async update(req, res) {
 
-        const buyer = await Buyer.findByPk(req.params.id);
+        const stock = await Stock.findByPk(req.params.id);
 
-        if (!buyer) {
+        if (!stock) {
             return res.status(404).json({
-                error: 'Buyer not found!'
+                error: 'Stock not found!'
             });
         }
 
@@ -126,7 +123,7 @@ class BuyerController {
                 hierarchy: data.hierarchy,
             }
 
-            let user_updated = await Buyer.update(user_obj, { where: { id: data.id }, transaction })
+            let user_updated = await Stock.update(user_obj, { where: { id: data.id }, transaction })
 
             if (data.menus) {
                 await Promise.all(data.menus.map(async (element) => {
@@ -135,7 +132,7 @@ class BuyerController {
                         // if (children.permission_read || children.permission_write || children.permission_delete) {
                         let user_menu = {
                             menu: children.menu,
-                            buyer: data.id,
+                            stock: data.id,
                             permission_read: children.permission_read,
                             permission_write: children.permission_write,
                             permission_delete: children.permission_delete
@@ -167,23 +164,23 @@ class BuyerController {
 
     async delete(req, res) {
 
-        const buyer = await Buyer.findOne({
+        const stock = await Stock.findOne({
             where: {
                 id: req.params.id
             }
         });
 
-        if (!buyer)
+        if (!stock)
             return res.status(400).json({
-                error: 'This Buyer does not exists!'
+                error: 'This Stock does not exists!'
             });
 
-        await buyer.destroy();
+        await stock.destroy();
         return res.status(200).json({
-            message: 'Buyer successfully deleted!'
+            message: 'Stock successfully deleted!'
         });
     }
 
 }
 
-export default new BuyerController();
+export default new StockController();
