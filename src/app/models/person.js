@@ -17,7 +17,8 @@ class Person extends Model {
   }
 
   static associate(models) {
-    this.belongsTo(models.Contact, {foreignKey: 'contact'})
+    this.belongsTo(models.Contact, {foreignKey: 'contact'}),
+    this.belongsTo(models.User, {foreignKey: 'person'})
   }
 }
 
