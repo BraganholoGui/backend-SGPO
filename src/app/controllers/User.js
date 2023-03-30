@@ -22,13 +22,10 @@ import Team from '../models/team.js';
 
 const sequelize = database.connection;
 
-
-
-
 let include = [
-    // utils.include(Person, { id: true }, true, null, null, null),
-    // utils.include(Role, { id: true }, true, null, null, null),
-    utils.include(Team, { id: true }, true, null, null, null),
+    utils.include(Role, { id: true }, false, null, null, null),
+    utils.include(Team, { id: true }, false, null, null, null),
+    utils.include(Person, { }, false, null, null, null),
 ];
 class UserController {
 

@@ -1,12 +1,19 @@
+import Contact from '../models/contact.js';
 import Person from '../models/person.js';
 import content from './content.js';
+import utils from './utils.js';
 
+
+let include = [
+	utils.include(Contact, { }, false, null, null, null),
+];
 
 class PersonController {
 
 	async index(req, res) {
 		const people = await Person.findAll({
 			order: ['id'],
+			include
 		});
 		return res.json(
 			content(people)

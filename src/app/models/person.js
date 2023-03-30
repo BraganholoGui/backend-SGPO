@@ -10,15 +10,15 @@ class Person extends Model {
       {
         sequelize,
         freezeTableName: true,
-        tableName: 'Person',
+        tableName: 'person',
       }
     );
     return this;
   }
 
   static associate(models) {
-    this.belongsTo(models.Contact, {foreignKey: 'contact'}),
-    this.belongsTo(models.User, {foreignKey: 'person'})
+    this.hasMany(models.User, {foreignKey: 'person'}),
+    this.belongsTo(models.Contact, {foreignKey: 'contact'})
   }
 }
 
