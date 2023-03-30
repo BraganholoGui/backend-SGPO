@@ -16,6 +16,7 @@ class Team extends Model {
   }
 
   static associate(models) {
+    this.hasMany(models.User, {foreignKey: 'person'})
   }
 }
 
