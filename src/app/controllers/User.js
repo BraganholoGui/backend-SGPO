@@ -80,11 +80,9 @@ class UserController {
 
     }
     async getById(req, res) {
-
         const user = await User.findOne({
             where: {
-                id: req.params.id,
-                
+                id: req.params.id.id,
             },
             include
         });
