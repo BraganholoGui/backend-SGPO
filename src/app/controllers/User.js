@@ -23,9 +23,11 @@ import Team from '../models/team.js';
 const sequelize = database.connection;
 
 let include = [
-    utils.include(Role, { id: true }, false, null, null, null),
-    utils.include(Team, { id: true }, false, null, null, null),
-    utils.include(Person, { }, false, null, null, null),
+    utils.include(Role, { }, false, null, null, null),
+    utils.include(Team, { }, false, null, null, null),
+    utils.include(Person, { }, false, null, [
+        utils.include(Contact, { }, false, null, null, null),
+    ], null),
 ];
 class UserController {
 
@@ -163,79 +165,27 @@ class UserController {
                 data.password = await bcrypt.hash(data.password, 8);
             }
 
-            let role_updated;
-            if (data.role.id) {
-                role_updated = data.role;
-            } else {
-                role_updated = await Role.create(data.role, {
-                    transaction
-                });
-            }
-
-            data.address.cep = data.address.cep.toString().replace('.', '');
-            data.address.cep = data.address.cep.toString().replace('-', '');
-            data.physical_person.company = 1;
-
-            let address_updated = await Address.update(data.address, { where: { id: data.pf.Person.address }, transaction })
-
-            let contact_updated = await Contact.update(data.contact, { where: { id: data.pf.Person.contact }, transaction })
+        
+            let contact_updated = await Contact.update(data.contact, { where: { id: data.contact.id }, transaction })
 
             let person_obj = {
                 name: data.person.name,
-                birth_date: data.person.birth_date,
-                address: address_updated.id,
                 contact: contact_updated.id
             }
 
-            let person_updated = await Person.update(person_obj, { where: { id: data.pf.Person.id }, transaction })
-
-            let physical_person_obj = {
-                cpf: data.physical_person.cpf,
-                rg: data.physical_person.rg,
-                person: person_updated.id,
-                company: 1
-            }
-
-            let physical_person_updated = await PhysicalPerson.update(physical_person_obj, { where: { id: data.pf.id }, transaction })
+            let person_updated = await Person.update(person_obj, { where: { id: data.person.id }, transaction })
 
             let user_obj = {
-                unit: data.unit.id,
-                email: data.email,
-                password_hash: data.password_hash,
-                physical_person: physical_person_updated.id,
-                company: 1,
-                role: role_updated.id,
-                hierarchy: data.hierarchy,
+                access_name: data.access_name,
+                password_hash: data.password,
+                person: person_updated.id,
+                team: data.team,
+                role: data.role,
             }
 
-            let user_updated = await User.update(user_obj, { where: { id: data.id }, transaction })
-
-            if (data.menus) {
-                await Promise.all(data.menus.map(async (element) => {
-                    await Promise.all(element.children.map(async (children) => {
-                        // children.permission_read = 1
-                        // if (children.permission_read || children.permission_write || children.permission_delete) {
-                        let user_menu = {
-                            menu: children.menu,
-                            user: data.id,
-                            permission_read: children.permission_read,
-                            permission_write: children.permission_write,
-                            permission_delete: children.permission_delete
-                        };
-                        if (!children.id) {
-                            await UserMenu.create(user_menu, { transaction });
-                        } else {
-                            await UserMenu.update(user_menu, { where: { id: children.id }, transaction });
-                        }
-                        // }
-                    }));
-                }));
-            }
-
+            let user_updated = await User.update(user_obj, { where: { id: user.id }, transaction })
 
             await transaction.commit();
-
-            // await sendEmail(data.email, user_updated.id, res);
 
             return res.json(user_updated);
 
