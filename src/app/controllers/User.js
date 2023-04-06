@@ -80,16 +80,21 @@ class UserController {
 
     }
     async getById(req, res) {
-        const user = await User.findOne({
-            where: {
-                id: req.params.id,
-            },
-            include
-        });
+        try{
 
-        return res.status(200).json({
-            user,
-        });
+            const user = await User.findOne({
+                where: {
+                    id: req.params.id,
+                },
+                include
+            });
+    
+            return res.status(200).json({
+                user
+            });
+        } catch(e){
+            console.log(e)
+        }
     }
 
     async store(req, res) {
