@@ -5,9 +5,17 @@ import TeamUser from '../models/teamUser.js';
 import content from './content.js';
 import Contact from '../models/contact.js';
 import Team from '../models/team.js';
+import User from '../models/user.js';
+import utils from './utils.js';
 
 const sequelize = database.connection;
 
+let include = [
+    utils.include(Team, {}, false, null, null, null),
+    utils.include(User, {}, false, null, [
+        utils.include(Person, {}, false, null, null, null),
+    ], null),
+];
 class TeamUserController {
     async index(req, res) {
         try {
@@ -24,9 +32,9 @@ class TeamUserController {
     }
     async getById(req, res) {
 
-        const team_user = await TeamUser.findOne({
+        const team_user = await TeamUser.findAll({
             where: {
-                id: req.params.id,
+                team: req.params.id,
             },
             include
         });
@@ -41,16 +49,14 @@ class TeamUserController {
         try {
             let data = req.body
 
-            let team_stored =  await Team.create(data)
+            let team_stored = await Team.create(data)
             let team_user_stored;
-            data.userRelateds.map(async user =>{
+            data.userRelateds.map(async user => {
                 let obj = {
-                    team:team_stored.id,
-                    user:user.id
+                    team: team_stored.id,
+                    user: user.id
                 }
-                 team_user_stored = await TeamUser.create(obj, {
-                    transaction
-                });
+                team_user_stored = await TeamUser.create(obj);
             })
 
             await transaction.commit();
@@ -66,7 +72,12 @@ class TeamUserController {
 
     async update(req, res) {
 
-        const team_user = await TeamUser.findByPk(req.params.id);
+        const team_user = await TeamUser.findAll({
+            where: {
+                team: req.params.id,
+            },
+            include
+        });
 
         if (!team_user) {
             return res.status(404).json({
@@ -74,11 +85,30 @@ class TeamUserController {
             });
         }
 
+
         let transaction = await sequelize.transaction();
         try {
             let data = req.body
+            let userFound;
+            let userNotFound;
+            let team_user_updated
 
-            let team_user_updated = await TeamUser.update(data, { where: { id: team_user.id }, transaction })
+            team_user.map(teamUser => {
+                TeamUser.destroy({
+                    where: { team: teamUser.team }
+                })
+            })
+
+            data.userRelateds.map(async user => {
+                let obj = {
+                    team: req.params.id,
+                    user: user.user ? user.user : user.id
+                }
+                team_user_stored = await TeamUser.create(obj);
+            })
+
+
+
 
             await transaction.commit();
 
