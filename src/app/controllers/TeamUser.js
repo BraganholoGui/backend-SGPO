@@ -4,6 +4,7 @@ import Person from '../models/person.js';
 import TeamUser from '../models/teamUser.js';
 import content from './content.js';
 import Contact from '../models/contact.js';
+import Team from '../models/team.js';
 
 const sequelize = database.connection;
 
@@ -40,9 +41,17 @@ class TeamUserController {
         try {
             let data = req.body
 
-            let team_user_stored = await TeamUser.create(data, {
-                transaction
-            });
+            let team_stored =  await Team.create(data)
+            let team_user_stored;
+            data.userRelateds.map(async user =>{
+                let obj = {
+                    team:team_stored.id,
+                    user:user.id
+                }
+                 team_user_stored = await TeamUser.create(obj, {
+                    transaction
+                });
+            })
 
             await transaction.commit();
             return res.json(team_user_stored);

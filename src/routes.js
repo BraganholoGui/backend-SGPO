@@ -22,6 +22,7 @@ import Supplier from './app/controllers/Supplier.js'
 import Purchase from './app/controllers/Purchase.js'
 import Sale from './app/controllers/Sale.js'
 import SupplierPurchase from './app/controllers/SupplierPurchase.js'
+import TeamUser from './app/controllers/TeamUser.js'
 
 const routes = new Router()
 
@@ -105,6 +106,13 @@ routes.put('/teams/:id', Team.update)
 routes.get('/teams', Team.index)
 routes.get('/teams/:id', Team.getById)
 routes.delete('/teams/:id', Team.delete)
+
+// TeamUser
+routes.post('/teams-user', TeamUser.store)
+routes.put('/teams-user/:id', TeamUser.update)
+routes.get('/teams-user', TeamUser.index)
+routes.get('/teams-user/:id', TeamUser.getById)
+routes.delete('/teams-user/:id', TeamUser.delete)
 
 // Sale
 routes.post('/sales', Sale.store)
