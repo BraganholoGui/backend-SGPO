@@ -45,7 +45,7 @@ class TeamController {
 		if (!team)
 			return res.status(400).json({ error: 'This Team does not exists!' });
 
-		await team.update({ active: false });
+		await team.destroy({ where: { id: req.params.id } });
 
 		return res.status(200).json({ message: 'Team successfully deleted!' });
 	}
