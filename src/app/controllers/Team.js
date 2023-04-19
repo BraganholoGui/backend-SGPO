@@ -43,7 +43,7 @@ class TeamController {
 		const team = await Team.findOne({ where: { id: req.params.id } });
 
 		if (!team)
-			return res.status(400).json({ error: 'This Team does not exists!' });
+			return res.s1tatus(400).json({ error: 'This Team does not exists!' });
 
 		await team.destroy({ where: { id: req.params.id } });
 
