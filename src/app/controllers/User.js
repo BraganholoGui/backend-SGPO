@@ -19,12 +19,16 @@ import { Op } from "sequelize";
 import Role from '../models/role.js';
 import Contact from '../models/contact.js';
 import Team from '../models/team.js';
+import TeamUser from '../models/teamUser.js';
 
 const sequelize = database.connection;
 
 let include = [
     utils.include(Role, { }, false, null, null, null),
     utils.include(Team, { }, false, null, null, null),
+    utils.include(TeamUser, { }, false, null, [
+        utils.include(Team, { }, false, null, null, null),
+    ], null),
     utils.include(Person, { }, false, null, [
         utils.include(Contact, { }, false, null, null, null),
     ], null),
@@ -135,6 +139,11 @@ class UserController {
             let user_stored = await User.create(user_obj, {
                 transaction
             });
+            let obj = {
+                team: data.team,
+                user: user_stored.id
+            }
+            await TeamUser.create(obj);
 
             await transaction.commit();
             return res.json(user_stored);
