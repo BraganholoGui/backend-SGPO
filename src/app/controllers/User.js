@@ -139,11 +139,6 @@ class UserController {
             let user_stored = await User.create(user_obj, {
                 transaction
             });
-            let obj = {
-                team: data.team,
-                user: user_stored.id
-            }
-            await TeamUser.create(obj);
 
             await transaction.commit();
             return res.json(user_stored);
