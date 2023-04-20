@@ -132,7 +132,7 @@ class UserController {
                 access_name: data.access_name,
                 password_hash: data.password,
                 person: person_stored.id,
-                team: data.team,
+                // team: data.team,
                 role: data.role,
             }
 
