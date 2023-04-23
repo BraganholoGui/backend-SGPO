@@ -7,14 +7,22 @@ import Supplier from '../models/supplier.js';
 import content from './content.js';
 import Role from '../models/role.js';
 import Contact from '../models/contact.js';
+import utils from './utils.js';
 
 const sequelize = database.connection;
+
+let include = [
+    utils.include(Person, { }, false, null, [
+        utils.include(Contact, { }, false, null, null, null),
+    ], null),
+];
 
 class SupplierController {
     async index(req, res) {
         try {
             const suppliers = await Supplier.findAll({
                 order: ['id'],
+                include
             });
             return res.json(
                 content(suppliers)
@@ -43,7 +51,28 @@ class SupplierController {
         try {
             let data = req.body
 
-            let supplier_stored = await Supplier.create(data, {
+            let contact_stored;
+            if (data.contact) {
+                contact_stored = await Contact.create(data.contact, {
+                    transaction
+                });
+            }
+
+            let person_obj = {
+                name: data.person.name,
+                contact: contact_stored.id
+            }
+
+            let person_stored = await Person.create(person_obj, {
+                transaction
+            });
+
+            let user_obj = {
+                cnpj: data.cnpj,
+                person: person_stored.id,
+            }
+
+            let supplier_stored = await Supplier.create(user_obj, {
                 transaction
             });
 
@@ -60,9 +89,9 @@ class SupplierController {
 
     async update(req, res) {
 
-        const supplier = await Supplier.findByPk(req.params.id);
+        const sup = await Supplier.findByPk(req.params.id);
 
-        if (!supplier) {
+        if (!sup) {
             return res.status(404).json({
                 error: 'Supplier not found!'
             });
@@ -72,11 +101,23 @@ class SupplierController {
         try {
             let data = req.body
 
-            let supplier_updated = await Supplier.update(data, { where: { id: supplier.id }, transaction })
+            let contact_updated = await Contact.update(data.contact, { where: { id: data.contact.id }, transaction })
+
+            let person_obj = {
+                name: data.person.name,
+                contact: contact_updated.id
+            }
+
+            let person_updated = await Person.update(person_obj, { where: { id: data.person.id }, transaction })
+
+            let supplier_obj = {
+                cnpj: data.cnpj,
+                person: person_updated.id,
+            }
+
+            let supplier_updated = await Supplier.update(supplier_obj, { where: { id: sup.id }, transaction })
 
             await transaction.commit();
-
-            // await sendEmail(data.email, user_updated.id, res);
 
             return res.json(supplier_updated);
 
