@@ -60,11 +60,9 @@ class BuyerController {
             });
 
             let buyer_obj = {
-                access_name: data.access_name,
-                password_hash: data.password,
                 person: person_stored.id,
-                team: data.team,
-                role: data.role,
+                cpf_cnpj:data.cpf_cnpj,
+                is_cnpj:data.is_cnpj
             }
 
             let buyer_stored = await Buyer.create(buyer_obj, {
