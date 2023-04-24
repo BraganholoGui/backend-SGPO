@@ -7,14 +7,21 @@ import Buyer from '../models/buyer.js';
 import content from './content.js';
 import Role from '../models/role.js';
 import Contact from '../models/contact.js';
+import utils from './utils.js';
 
 const sequelize = database.connection;
 
+let include = [
+    utils.include(Person, { }, false, null, [
+        utils.include(Contact, { }, false, null, null, null),
+    ], null),
+];
 class BuyerController {
     async index(req, res) {
         try {
             const buyers = await Buyer.findAll({
                 order: ['id'],
+                include
             });
             return res.json(
                 content(buyers)
@@ -94,66 +101,24 @@ class BuyerController {
         try {
             let data = req.body
 
-            let contact_updated = await Contact.update(data.contact, { where: { id: data.pf.Person.contact }, transaction })
+            let contact_updated = await Contact.update(data.contact, { where: { id: data.contact.id }, transaction })
 
             let person_obj = {
                 name: data.person.name,
-                birth_date: data.person.birth_date,
-                address: address_updated.id,
-                contact: contact_updated.id
+                contact: data.contact.id
             }
 
-            let person_updated = await Person.update(person_obj, { where: { id: data.pf.Person.id }, transaction })
+            let person_updated = await Person.update(person_obj, { where: { id: data.person.id }, transaction })
 
-            let physical_person_obj = {
-                cpf: data.physical_person.cpf,
-                rg: data.physical_person.rg,
+            let buyer_obj = {
+                cpf_cnpj: data.cpf_cnpj,
                 person: person_updated.id,
-                company: 1
             }
 
-            let physical_person_updated = await PhysicalPerson.update(physical_person_obj, { where: { id: data.pf.id }, transaction })
-
-            let user_obj = {
-                unit: data.unit.id,
-                email: data.email,
-                password_hash: data.password_hash,
-                physical_person: physical_person_updated.id,
-                company: 1,
-                role: role_updated.id,
-                hierarchy: data.hierarchy,
-            }
-
-            let user_updated = await Buyer.update(user_obj, { where: { id: data.id }, transaction })
-
-            if (data.menus) {
-                await Promise.all(data.menus.map(async (element) => {
-                    await Promise.all(element.children.map(async (children) => {
-                        // children.permission_read = 1
-                        // if (children.permission_read || children.permission_write || children.permission_delete) {
-                        let user_menu = {
-                            menu: children.menu,
-                            buyer: data.id,
-                            permission_read: children.permission_read,
-                            permission_write: children.permission_write,
-                            permission_delete: children.permission_delete
-                        };
-                        if (!children.id) {
-                            await UserMenu.create(user_menu, { transaction });
-                        } else {
-                            await UserMenu.update(user_menu, { where: { id: children.id }, transaction });
-                        }
-                        // }
-                    }));
-                }));
-            }
-
-
+            let buyer_updated = await Buyer.update(buyer_obj, { where: { id: buyer.id }, transaction })
             await transaction.commit();
 
-            // await sendEmail(data.email, user_updated.id, res);
-
-            return res.json(user_updated);
+            return res.json(buyer_updated);
 
         } catch (error) {
             await transaction.rollback();
