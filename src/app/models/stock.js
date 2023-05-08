@@ -7,6 +7,7 @@ class Stock extends Model {
         product: Sequelize.INTEGER,
         material: Sequelize.INTEGER,
         quantity: Sequelize.INTEGER,
+        total_price: Sequelize.INTEGER,
       },
       {
         sequelize,
