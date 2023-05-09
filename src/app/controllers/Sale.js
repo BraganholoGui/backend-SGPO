@@ -2,9 +2,16 @@ import 'dotenv';
 import database from '../../database/index.js';
 import Sale from '../models/sale.js';
 import content from './content.js';
+import utils from './utils.js';
+import Product from '../models/product.js';
+import Buyer from '../models/buyer.js';
 
 const sequelize = database.connection;
 
+let include = [
+    utils.include(Product, { }, false, null, null, null),
+    utils.include(Buyer, { }, false, null, null, null),
+];
 class SaleController {
     async index(req, res) {
         try {
