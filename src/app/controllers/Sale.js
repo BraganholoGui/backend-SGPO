@@ -5,18 +5,22 @@ import content from './content.js';
 import utils from './utils.js';
 import Product from '../models/product.js';
 import Buyer from '../models/buyer.js';
+import Person from '../models/person.js';
 
 const sequelize = database.connection;
 
 let include = [
     utils.include(Product, { }, false, null, null, null),
-    utils.include(Buyer, { }, false, null, null, null),
+    utils.include(Buyer, { }, false, null, [
+        utils.include(Person, { }, false, null, null, null),
+    ], null),
 ];
 class SaleController {
     async index(req, res) {
         try {
             const sales = await Sale.findAll({
                 order: ['id'],
+                include
             });
             return res.json(
                 content(sales)
