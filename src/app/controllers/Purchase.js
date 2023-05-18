@@ -2,14 +2,23 @@ import 'dotenv';
 import database from '../../database/index.js';
 import Purchase from '../models/purchase.js';
 import content from './content.js';
+import Material from '../models/material.js';
+import Product from '../models/product.js';
+import utils from './utils.js';
 
 const sequelize = database.connection;
+
+let include = [
+    utils.include(Product, { }, false, null, null, null),
+    utils.include(Material, { }, false, null, null, null),
+];
 
 class PurchaseController {
     async index(req, res) {
         try {
             const purchases = await Purchase.findAll({
                 order: ['id'],
+                include
             });
             return res.json(
                 content(purchases)
