@@ -4,14 +4,30 @@ import Person from '../models/person.js';
 import SupplierPurchase from '../models/supplierPurchase.js';
 import content from './content.js';
 import Contact from '../models/contact.js';
+import Supplier from '../models/supplier.js';
+import utils from './utils.js';
+import Purchase from '../models/purchase.js';
+import Product from '../models/product.js';
+import Material from '../models/material.js';
 
 const sequelize = database.connection;
 
+let include = [
+    utils.include(Supplier, {}, false, null, [
+        utils.include(Person, {}, false, null, null, null),
+    ], null),
+    utils.include(Purchase, {}, false, null, [
+        utils.include(Product, {}, false, null, null, null),
+        utils.include(Material, {}, false, null, null, null),
+    ], null),
+    
+];
 class SupplierPurchaseController {
     async index(req, res) {
         try {
             const supplier_purchases = await SupplierPurchase.findAll({
                 order: ['id'],
+                include
             });
             return res.json(
                 content(supplier_purchases)

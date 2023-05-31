@@ -5,14 +5,19 @@ import content from './content.js';
 import Material from '../models/material.js';
 import Product from '../models/product.js';
 import utils from './utils.js';
+import Person from '../models/person.js';
+import Supplier from '../models/supplier.js';
+import SupplierPurchase from '../models/supplierPurchase.js';
 
 const sequelize = database.connection;
 
 let include = [
     utils.include(Product, { }, false, null, null, null),
     utils.include(Material, { }, false, null, null, null),
-    utils.include(Buyer, { }, false, null, [
-        utils.include(Person, { }, false, null, null, null),
+    utils.include(SupplierPurchase, { }, false, null, [
+        utils.include(Supplier, { }, false, null, [
+            utils.include(Person, { }, false, null, null, null),
+        ], null),
     ], null),
 ];
 
@@ -54,6 +59,15 @@ class PurchaseController {
                 transaction
             });
 
+            let objSupplierPurchase = {
+                purchase: purchase_stored.id,
+                supplier:data.supplier
+            }
+
+            await SupplierPurchase.create(objSupplierPurchase, {
+                transaction
+            });
+
             await transaction.commit();
             return res.json(purchase_stored);
 
@@ -75,16 +89,31 @@ class PurchaseController {
             });
         }
 
+        const hasSupplierPurchase = await SupplierPurchase.findOne({
+            where: {
+                purchase: purchase.id
+            },
+        });
+
         let transaction = await sequelize.transaction();
         try {
             let data = req.body
 
             let purchase_updated = await Purchase.update(data, { where: { id: purchase.id }, transaction })
 
+            let objSupplierPurchase = {
+                purchase: purchase.id,
+                supplier:data.supplier
+            }
+
+            if(hasSupplierPurchase){
+                await SupplierPurchase.update(objSupplierPurchase, { where: { purchase: purchase.id }, transaction });
+            }else{
+                await SupplierPurchase.create(objSupplierPurchase, { transaction });
+
+            }
+
             await transaction.commit();
-
-            // await sendEmail(data.email, user_updated.id, res);
-
             return res.json(purchase_updated);
 
         } catch (error) {

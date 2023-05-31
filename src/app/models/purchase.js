@@ -21,6 +21,7 @@ class Purchase extends Model {
   static associate(models) {
     this.belongsTo(models.Product, {foreignKey: 'product'})
     this.belongsTo(models.Material, {foreignKey: 'material'})
+    this.hasMany(models.SupplierPurchase, {foreignKey: 'purchase'})
   }
 }
 
