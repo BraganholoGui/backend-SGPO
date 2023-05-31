@@ -5,6 +5,13 @@ import content from './content.js';
 
 const sequelize = database.connection;
 
+let include = [
+    utils.include(Product, { }, false, null, null, null),
+    utils.include(Buyer, { }, false, null, [
+        utils.include(Person, { }, false, null, null, null),
+    ], null),
+];
+
 class PurchaseController {
     async index(req, res) {
         try {
