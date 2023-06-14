@@ -10,10 +10,12 @@ module.exports = {
       },
       product: {
         type: Sequelize.INTEGER,
+        allowNull: true,
         references: { model: 'product', key: 'id' },
       },
       material: {
         type: Sequelize.INTEGER,
+        allowNull: true,
         references: { model: 'material', key: 'id' },
       },
       price: {
