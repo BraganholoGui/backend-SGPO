@@ -107,8 +107,17 @@ class SaleController {
         let transaction = await sequelize.transaction();
         try {
             let data = req.body
+            if(data.quantity)parseInt(data.quantity)
 
-            let purchase_updated = await Sale.update(data, { where: { id: sale.id }, transaction })
+            let sale_updated = await Sale.update(data, { where: { id: sale.id }, transaction })
+
+            if(sale.quantity < data.quantity){
+                data.quantity -= sale.quantity
+            } else if(sale.quantity > data.quantity){
+                data.quantity = sale.quantity - data.quantity
+            } else{
+                data.quantity = 0
+            }
 
             let qtd = 0;
             if(data.product){
@@ -117,7 +126,7 @@ class SaleController {
                         product: data.product,
                     },
                 });
-                qtd = parseInt(product.quantity || 0) - parseInt(data.quantity)
+                qtd = parseInt(product.quantity || 0) - data.quantity
                 if(qtd <0) qtd = 0
                 
                 let dataStock = {
@@ -143,7 +152,7 @@ class SaleController {
 
             // await sendEmail(data.email, user_updated.id, res);
 
-            return res.json(purchase_updated);
+            return res.json(sale_updated);
 
         } catch (error) {
             await transaction.rollback();

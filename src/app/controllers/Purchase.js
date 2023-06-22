@@ -157,6 +157,16 @@ class PurchaseController {
         try {
             let data = req.body
 
+            if(data.quantity)parseInt(data.quantity)
+
+            if(purchase.quantity < data.quantity){
+                data.quantity -= purchase.quantity
+            } else if(purchase.quantity > data.quantity){
+                data.quantity = purchase.quantity - data.quantity
+            } else{
+                data.quantity = 0
+            }
+
             let purchase_updated = await Purchase.update(data, { where: { id: purchase.id }, transaction })
 
             let objSupplierPurchase = {
