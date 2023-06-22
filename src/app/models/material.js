@@ -9,6 +9,7 @@ class Material extends Model {
         price: Sequelize.FLOAT,
         description: Sequelize.STRING,
         quantity_min: Sequelize.INTEGER,
+        quantity: Sequelize.INTEGER,
       },
       {
         sequelize,
