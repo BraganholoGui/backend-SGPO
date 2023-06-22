@@ -8,6 +8,7 @@ import utils from './utils.js';
 import Person from '../models/person.js';
 import Supplier from '../models/supplier.js';
 import SupplierPurchase from '../models/supplierPurchase.js';
+import Stock from '../models/stock.js';
 
 const sequelize = database.connection;
 
@@ -68,15 +69,60 @@ class PurchaseController {
                 transaction
             });
 
-            let qtd;
+            let qtd = 0;
             if(data.product){
-                const product = await Product.findOne({
+                const product = await Stock.findOne({
                     where: {
-                        id: data.product,
+                        product: data.product,
                     },
                 });
-                qtd = product.quantity
+                qtd = parseInt(product.quantity || 0) + parseInt(data.quantity)
 
+                
+                let dataStock = {
+                    material:product.id,
+                    total_price:data.price * data.quantity,
+                    quantity: qtd
+                }
+                await Stock.update(dataStock, {
+                    where: { product: product.id }, transaction
+                });
+               
+                let dataProduct = {
+                    product:product.id,
+                    total_price:data.price,
+                    quantity: qtd
+                }
+                await Product.update(dataProduct, {
+                    where: { id: product.id }, transaction
+                });
+                
+            }else{
+                const material = await Stock.findOne({
+                    where: {
+                        material: data.material,
+                    },
+                });
+                qtd = parseInt(material.quantity || 0) + parseInt(data.quantity)
+
+                
+                let dataStock = {
+                    material:material.id,
+                    total_price:data.price * data.quantity,
+                    quantity: qtd
+                }
+                await Stock.update(dataStock, {
+                    where: { material: material.id }, transaction
+                });
+               
+                let dataMaterial = {
+                    material:material.id,
+                    total_price:data.price,
+                    quantity: qtd
+                }
+                await Material.update(dataMaterial, {
+                    where: { id: material.id }, transaction
+                });
             }
 
 
