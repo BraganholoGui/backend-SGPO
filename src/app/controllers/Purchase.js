@@ -80,21 +80,21 @@ class PurchaseController {
 
                 
                 let dataStock = {
-                    product:product.id,
+                    product:product.product,
                     total_price:data.price * data.quantity,
                     quantity: qtd
                 }
                 await Stock.update(dataStock, {
-                    where: { product: product.id }, transaction
+                    where: { product: product.product }, transaction
                 });
                
                 let dataProduct = {
-                    product:product.id,
+                    product:product.product,
                     total_price:data.price,
                     quantity: qtd
                 }
                 await Product.update(dataProduct, {
-                    where: { id: product.id }, transaction
+                    where: { id: product.product }, transaction
                 });
                 
             }else{
@@ -107,21 +107,21 @@ class PurchaseController {
 
                 
                 let dataStock = {
-                    material:material.id,
+                    material:material.material,
                     total_price:data.price * data.quantity,
                     quantity: qtd
                 }
                 await Stock.update(dataStock, {
-                    where: { material: material.id }, transaction
+                    where: { material: material.material }, transaction
                 });
                
                 let dataMaterial = {
-                    material:material.id,
+                    material:material.material,
                     total_price:data.price,
                     quantity: qtd
                 }
                 await Material.update(dataMaterial, {
-                    where: { id: material.id }, transaction
+                    where: { id: material.material }, transaction
                 });
             }
 
@@ -157,12 +157,12 @@ class PurchaseController {
         try {
             let data = req.body
 
-            if(data.quantity)parseInt(data.quantity)
+            if(data.quantity)data.quantity = parseInt(data.quantity)
 
             if(purchase.quantity < data.quantity){
                 data.quantity -= purchase.quantity
             } else if(purchase.quantity > data.quantity){
-                data.quantity = purchase.quantity - data.quantity
+                data.quantity = data.quantity - purchase.quantity
             } else{
                 data.quantity = 0
             }
@@ -192,12 +192,12 @@ class PurchaseController {
 
                 
                 let dataStock = {
-                    product:product.id,
+                    product:product.product,
                     total_price:data.price * data.quantity,
                     quantity: qtd
                 }
                 await Stock.update(dataStock, {
-                    where: { product: product.id }, transaction
+                    where: { product: product.product }, transaction
                 });
                
                 let dataProduct = {
@@ -206,7 +206,7 @@ class PurchaseController {
                     quantity: qtd
                 }
                 await Product.update(dataProduct, {
-                    where: { id: product.id }, transaction
+                    where: { id: product.product }, transaction
                 });
                 
             }else{
@@ -219,21 +219,21 @@ class PurchaseController {
 
                 
                 let dataStock = {
-                    material:material.id,
+                    material:material.material,
                     total_price:data.price * data.quantity,
                     quantity: qtd
                 }
                 await Stock.update(dataStock, {
-                    where: { material: material.id }, transaction
+                    where: { material: material.material }, transaction
                 });
                
                 let dataMaterial = {
-                    material:material.id,
+                    material:material.material,
                     total_price:data.price,
                     quantity: qtd
                 }
                 await Material.update(dataMaterial, {
-                    where: { id: material.id }, transaction
+                    where: { id: material.material }, transaction
                 });
             }
 
@@ -249,22 +249,27 @@ class PurchaseController {
     }
 
     async delete(req, res) {
+        try{
 
-        const purchase = await Purchase.findOne({
-            where: {
-                id: req.params.id
-            }
-        });
-
-        if (!purchase)
+            const purchase = await Purchase.findOne({
+                where: {
+                    id: req.params.id
+                }
+            });
+            
+            if (!purchase)
             return res.status(400).json({
                 error: 'This Purchase does not exists!'
             });
-
-        await purchase.destroy();
-        return res.status(200).json({
-            message: 'Purchase successfully deleted!'
-        });
+            
+            await SupplierPurchase.destroy({ where: { purchase: req.params.id } });
+            await purchase.destroy({ where: { id: req.params.id } });
+            return res.status(200).json({
+                message: 'Purchase successfully deleted!'
+            });
+        } catch(e){
+            console.log(e)
+        }
     }
 
 }
