@@ -6,6 +6,7 @@ import utils from './utils.js';
 import Stock from '../models/stock.js';
 import Purchase from '../models/purchase.js';
 import SupplierPurchase from '../models/supplierPurchase.js';
+import Sale from '../models/sale.js';
 
 const sequelize = database.connection;
 
@@ -106,34 +107,48 @@ class ProductController {
     }
 
     async delete(req, res) {
+        try{
 
-        const product = await Product.findOne({
-            where: {
-                id: req.params.id
-            }
-        });
-
-        if (!product)
+            const product = await Product.findOne({
+                where: {
+                    id: req.params.id
+                }
+            });
+            
+            if (!product)
             return res.status(400).json({
                 error: 'This Product does not exists!'
             });
-
-        const purchases = await Purchase.findAll({
+            
+            const purchases = await Purchase.findAll({
             where:{
                 product: req.params.id 
             }
-        });
-        purchases.map(item =>{
-                SupplierPurchase.destroy({ where: { purchase: item.id } });
-        })
+            });
+            purchases.map(item =>{
+                    SupplierPurchase.destroy({ where: { purchase: item.id } });
+            })
 
-        await Purchase.destroy({ where: { material: req.params.id } });
-        await Product.destroy({ where: { id: req.params.id } });
-        return res.status(200).json({
-            message: 'Product successfully deleted!'
-        });
+            await Purchase.destroy({ where: { product: req.params.id } });
+           
+            const sales = await Sale.findAll({
+            where:{
+                product: req.params.id 
+            }
+            });
+            sales.map(item =>{
+                Sale.destroy({ where: { product: item.product } });
+            })
+
+            await Product.destroy({ where: { id: req.params.id } });
+            return res.status(200).json({
+                message: 'Product successfully deleted!'
+            });
+        } catch(e){
+            console.log(e)
+        }
     }
-
+    
 }
 
 export default new ProductController();

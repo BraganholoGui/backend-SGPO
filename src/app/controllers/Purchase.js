@@ -80,7 +80,7 @@ class PurchaseController {
 
                 
                 let dataStock = {
-                    material:product.id,
+                    product:product.id,
                     total_price:data.price * data.quantity,
                     quantity: qtd
                 }
@@ -169,6 +169,62 @@ class PurchaseController {
             }else{
                 await SupplierPurchase.create(objSupplierPurchase, { transaction });
 
+            }
+
+            let qtd = 0;
+            if(data.product){
+                const product = await Stock.findOne({
+                    where: {
+                        product: data.product,
+                    },
+                });
+                qtd = parseInt(product.quantity || 0) + parseInt(data.quantity)
+
+                
+                let dataStock = {
+                    product:product.id,
+                    total_price:data.price * data.quantity,
+                    quantity: qtd
+                }
+                await Stock.update(dataStock, {
+                    where: { product: product.id }, transaction
+                });
+               
+                let dataProduct = {
+                    product:product.id,
+                    total_price:data.price,
+                    quantity: qtd
+                }
+                await Product.update(dataProduct, {
+                    where: { id: product.id }, transaction
+                });
+                
+            }else{
+                const material = await Stock.findOne({
+                    where: {
+                        material: data.material,
+                    },
+                });
+                qtd = parseInt(material.quantity || 0) + parseInt(data.quantity)
+
+                
+                let dataStock = {
+                    material:material.id,
+                    total_price:data.price * data.quantity,
+                    quantity: qtd
+                }
+                await Stock.update(dataStock, {
+                    where: { material: material.id }, transaction
+                });
+               
+                let dataMaterial = {
+                    material:material.id,
+                    total_price:data.price,
+                    quantity: qtd
+                }
+                await Material.update(dataMaterial, {
+                    where: { id: material.id }, transaction
+                });
             }
 
             await transaction.commit();

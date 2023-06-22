@@ -6,6 +6,7 @@ import utils from './utils.js';
 import Product from '../models/product.js';
 import Buyer from '../models/buyer.js';
 import Person from '../models/person.js';
+import Stock from '../models/stock.js';
 
 const sequelize = database.connection;
 
@@ -49,12 +50,41 @@ class SaleController {
         try {
             let data = req.body
 
-            let purchase_stored = await Sale.create(data, {
+            let sale_stored = await Sale.create(data, {
                 transaction
             });
 
+            let qtd = 0;
+            if(data.product){
+                const product = await Stock.findOne({
+                    where: {
+                        product: data.product,
+                    },
+                });
+                qtd = parseInt(product.quantity || 0) - parseInt(data.quantity)
+                if(qtd <0) qtd = 0
+                
+                let dataStock = {
+                    product:product.product,
+                    total_price:data.price * data.quantity,
+                    quantity: qtd
+                }
+                await Stock.update(dataStock, {
+                    where: { product: product.product }, transaction
+                });
+               
+                let dataProduct = {
+                    product:product.id,
+                    total_price:data.price,
+                    quantity: qtd
+                }
+                await Product.update(dataProduct, {
+                    where: { id: product.product }, transaction
+                });
+            }
+
             await transaction.commit();
-            return res.json(purchase_stored);
+            return res.json(sale_stored);
 
         } catch (error) {
             await transaction.rollback();
@@ -79,6 +109,35 @@ class SaleController {
             let data = req.body
 
             let purchase_updated = await Sale.update(data, { where: { id: sale.id }, transaction })
+
+            let qtd = 0;
+            if(data.product){
+                const product = await Stock.findOne({
+                    where: {
+                        product: data.product,
+                    },
+                });
+                qtd = parseInt(product.quantity || 0) - parseInt(data.quantity)
+                if(qtd <0) qtd = 0
+                
+                let dataStock = {
+                    product:product.product,
+                    total_price:data.price * data.quantity,
+                    quantity: qtd
+                }
+                await Stock.update(dataStock, {
+                    where: { product: product.product }, transaction
+                });
+               
+                let dataProduct = {
+                    product:product.id,
+                    total_price:data.price,
+                    quantity: qtd
+                }
+                await Product.update(dataProduct, {
+                    where: { id: product.product }, transaction
+                });
+            }
 
             await transaction.commit();
 
