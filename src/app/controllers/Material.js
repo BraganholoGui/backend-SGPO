@@ -2,6 +2,9 @@ import 'dotenv';
 import database from '../../database/index.js';
 import Material from '../models/material.js';
 import content from './content.js';
+import Stock from '../models/stock.js';
+import Purchase from '../models/purchase.js';
+import SupplierPurchase from '../models/supplierPurchase.js';
 
 const sequelize = database.connection;
 
@@ -43,6 +46,14 @@ class MaterialController {
                 transaction
             });
 
+            let dataStock = {
+                material: material.id,
+                total_price: material.price
+            }
+            await Stock.create(dataStock, {
+                transaction
+            });
+
             await transaction.commit();
             return res.json(material);
 
@@ -68,11 +79,19 @@ class MaterialController {
         try {
             let data = req.body
           
-            let task_updated = await Material.update(data, { where: { id: material.id }, transaction })
+            let material_updated = await Material.update(data, { where: { id: material.id }, transaction })
+
+            let dataStock = {
+                material:material.id,
+                total_price:data.price
+            }
+            await Stock.update(dataStock, {
+                where: { material: material.id }, transaction
+            });
 
             await transaction.commit();
 
-            return res.json(task_updated);
+            return res.json(material_updated);
 
         } catch (error) {
             await transaction.rollback();
@@ -83,9 +102,10 @@ class MaterialController {
     }
 
     async delete(req, res) {
+        try{
 
-        const material = await Material.findOne({
-            where: {
+            const material = await Material.findOne({
+                where: {
                 id: req.params.id
             }
         });
@@ -95,10 +115,23 @@ class MaterialController {
                 error: 'This Material does not exists!'
             });
 
-        await material.destroy();
+        const purchases = await Purchase.findAll({
+            where:{
+                material: req.params.id 
+            }
+        });
+        purchases.map(item =>{
+             SupplierPurchase.destroy({ where: { purchase: item.id } });
+        })
+
+        await Purchase.destroy({ where: { material: req.params.id } });
+        await Material.destroy({ where: { id: req.params.id } });
         return res.status(200).json({
             message: 'Material successfully deleted!'
         });
+        } catch(e){
+            console.log(e)
+        }
     }
 
 }

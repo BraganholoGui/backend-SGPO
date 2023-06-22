@@ -68,6 +68,18 @@ class PurchaseController {
                 transaction
             });
 
+            let qtd;
+            if(data.product){
+                const product = await Product.findOne({
+                    where: {
+                        id: data.product,
+                    },
+                });
+                qtd = product.quantity
+
+            }
+
+
             await transaction.commit();
             return res.json(purchase_stored);
 

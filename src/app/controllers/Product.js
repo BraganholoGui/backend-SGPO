@@ -3,6 +3,9 @@ import database from '../../database/index.js';
 import Product from '../models/product.js';
 import content from './content.js';
 import utils from './utils.js';
+import Stock from '../models/stock.js';
+import Purchase from '../models/purchase.js';
+import SupplierPurchase from '../models/supplierPurchase.js';
 
 const sequelize = database.connection;
 
@@ -42,7 +45,16 @@ class ProductController {
         try {
             let data = req.body
 
+            
             let product = await Product.create(data, {
+                transaction
+            });
+
+            let dataStock = {
+                product: product.id,
+                total_price: product.price
+            }
+            await Stock.create(dataStock, {
                 transaction
             });
 
@@ -71,11 +83,19 @@ class ProductController {
         try {
             let data = req.body
           
-            let task_updated = await Product.update(data, { where: { id: product.id }, transaction })
+            let productUpdate = await Product.update(data, { where: { id: product.id }, transaction })
+
+            let dataStock = {
+                product:product.id,
+                total_price:data.price
+            }
+            await Stock.update(dataStock, {
+                where: { product: product.id }, transaction
+            });
 
             await transaction.commit();
 
-            return res.json(task_updated);
+            return res.json(productUpdate);
 
         } catch (error) {
             await transaction.rollback();
@@ -98,7 +118,17 @@ class ProductController {
                 error: 'This Product does not exists!'
             });
 
-        await product.destroy();
+        const purchases = await Purchase.findAll({
+            where:{
+                product: req.params.id 
+            }
+        });
+        purchases.map(item =>{
+                SupplierPurchase.destroy({ where: { purchase: item.id } });
+        })
+
+        await Purchase.destroy({ where: { material: req.params.id } });
+        await Product.destroy({ where: { id: req.params.id } });
         return res.status(200).json({
             message: 'Product successfully deleted!'
         });

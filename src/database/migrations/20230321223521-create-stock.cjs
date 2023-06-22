@@ -10,17 +10,21 @@ module.exports = {
       },
       product: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: { model: 'product', key: 'id' },
       },
       material: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: { model: 'material', key: 'id' },
       },
       quantity: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: true
+      },
+      total_price: {
+        type: Sequelize.INTEGER,
+        allowNull: true
       },
       created_at: {
         allowNull: false,
