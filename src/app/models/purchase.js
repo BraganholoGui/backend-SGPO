@@ -8,6 +8,7 @@ class Purchase extends Model {
         material: Sequelize.INTEGER,
         price: Sequelize.FLOAT,
         quantity: Sequelize.INTEGER,
+        status: Sequelize.INTEGER,
       },
       {
         sequelize,
@@ -21,6 +22,7 @@ class Purchase extends Model {
   static associate(models) {
     this.belongsTo(models.Product, {foreignKey: 'product'})
     this.belongsTo(models.Material, {foreignKey: 'material'})
+    this.belongsTo(models.Material, {foreignKey: 'status'})
     this.hasMany(models.SupplierPurchase, {foreignKey: 'purchase'})
   }
 }
