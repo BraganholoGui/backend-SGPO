@@ -16,6 +16,10 @@ class Status extends Model {
     );
     return this;
   }
+
+  static associate(models) {
+    this.hasMany(models.SupplierPurchase, {foreignKey: 'purchase'})
+  }
 }
 
 export default Status;
