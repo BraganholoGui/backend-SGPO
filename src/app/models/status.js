@@ -18,7 +18,7 @@ class Status extends Model {
   }
 
   static associate(models) {
-    this.hasMany(models.SupplierPurchase, {foreignKey: 'purchase'})
+    this.hasMany(models.Purchase, {foreignKey: 'status'})
   }
 }
 

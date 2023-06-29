@@ -9,10 +9,12 @@ import Person from '../models/person.js';
 import Supplier from '../models/supplier.js';
 import SupplierPurchase from '../models/supplierPurchase.js';
 import Stock from '../models/stock.js';
+import Status from '../models/status.js';
 
 const sequelize = database.connection;
 
 let include = [
+    utils.include(Status, { }, false, null, null, null),
     utils.include(Product, { }, false, null, null, null),
     utils.include(Material, { }, false, null, null, null),
     utils.include(SupplierPurchase, { }, false, null, [
@@ -70,60 +72,64 @@ class PurchaseController {
             });
 
             let qtd = 0;
-            if(data.product){
-                const product = await Stock.findOne({
-                    where: {
-                        product: data.product,
-                    },
-                });
-                qtd = parseInt(product.quantity || 0) + parseInt(data.quantity)
+            if(data.status == 3){
 
-                
-                let dataStock = {
-                    product:product.product,
-                    total_price:data.price * data.quantity,
-                    quantity: qtd
-                }
-                await Stock.update(dataStock, {
-                    where: { product: product.product }, transaction
-                });
-               
-                let dataProduct = {
-                    product:product.product,
-                    total_price:data.price,
-                    quantity: qtd
-                }
-                await Product.update(dataProduct, {
-                    where: { id: product.product }, transaction
-                });
-                
-            }else{
-                const material = await Stock.findOne({
-                    where: {
-                        material: data.material,
-                    },
-                });
-                qtd = parseInt(material.quantity || 0) + parseInt(data.quantity)
+                if(data.product){
+                    const product = await Stock.findOne({
+                        where: {
+                            product: data.product,
+                        },
+                    });
+                    qtd = parseInt(product.quantity || 0) + parseInt(data.quantity)
 
+                    
+                    let dataStock = {
+                        product:product.product,
+                        total_price:data.price * data.quantity,
+                        quantity: qtd
+                    }
+                    await Stock.update(dataStock, {
+                        where: { product: product.product }, transaction
+                    });
                 
-                let dataStock = {
-                    material:material.material,
-                    total_price:data.price * data.quantity,
-                    quantity: qtd
+                    let dataProduct = {
+                        product:product.product,
+                        total_price:data.price,
+                        quantity: qtd
+                    }
+                    await Product.update(dataProduct, {
+                        where: { id: product.product }, transaction
+                    });
+                    
+                }else{
+                    const material = await Stock.findOne({
+                        where: {
+                            material: data.material,
+                        },
+                    });
+                    qtd = parseInt(material.quantity || 0) + parseInt(data.quantity)
+
+                    
+                    let dataStock = {
+                        material:material.material,
+                        total_price:data.price * data.quantity,
+                        quantity: qtd
+                    }
+                    await Stock.update(dataStock, {
+                        where: { material: material.material }, transaction
+                    });
+                
+                    let dataMaterial = {
+                        material:material.material,
+                        total_price:data.price,
+                        quantity: qtd
+                    }
+                    await Material.update(dataMaterial, {
+                        where: { id: material.material }, transaction
+                    });
                 }
-                await Stock.update(dataStock, {
-                    where: { material: material.material }, transaction
-                });
-               
-                let dataMaterial = {
-                    material:material.material,
-                    total_price:data.price,
-                    quantity: qtd
-                }
-                await Material.update(dataMaterial, {
-                    where: { id: material.material }, transaction
-                });
             }
+
 
 
             await transaction.commit();
