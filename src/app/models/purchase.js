@@ -9,6 +9,7 @@ class Purchase extends Model {
         price: Sequelize.FLOAT,
         quantity: Sequelize.INTEGER,
         status: Sequelize.INTEGER,
+        end: Sequelize.DATE,
       },
       {
         sequelize,
