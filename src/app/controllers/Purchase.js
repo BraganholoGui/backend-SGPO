@@ -14,12 +14,12 @@ import Status from '../models/status.js';
 const sequelize = database.connection;
 
 let include = [
-    utils.include(Status, { }, false, null, null, null),
-    utils.include(Product, { }, false, null, null, null),
-    utils.include(Material, { }, false, null, null, null),
-    utils.include(SupplierPurchase, { }, false, null, [
-        utils.include(Supplier, { }, false, null, [
-            utils.include(Person, { }, false, null, null, null),
+    utils.include(Status, {}, false, null, null, null),
+    utils.include(Product, {}, false, null, null, null),
+    utils.include(Material, {}, false, null, null, null),
+    utils.include(SupplierPurchase, {}, false, null, [
+        utils.include(Supplier, {}, false, null, [
+            utils.include(Person, {}, false, null, null, null),
         ], null),
     ], null),
 ];
@@ -64,7 +64,7 @@ class PurchaseController {
 
             let objSupplierPurchase = {
                 purchase: purchase_stored.id,
-                supplier:data.supplier
+                supplier: data.supplier
             }
 
             await SupplierPurchase.create(objSupplierPurchase, {
@@ -72,9 +72,9 @@ class PurchaseController {
             });
 
             let qtd = 0;
-            if(data.status == 3){
+            if (data.status == 3) {
 
-                if(data.product){
+                if (data.product) {
                     const product = await Stock.findOne({
                         where: {
                             product: data.product,
@@ -82,26 +82,26 @@ class PurchaseController {
                     });
                     qtd = parseInt(product.quantity || 0) + parseInt(data.quantity)
 
-                    
+
                     let dataStock = {
-                        product:product.product,
-                        total_price:data.price * data.quantity,
+                        product: product.product,
+                        total_price: data.price * data.quantity,
                         quantity: qtd
                     }
                     await Stock.update(dataStock, {
                         where: { product: product.product }, transaction
                     });
-                
+
                     let dataProduct = {
-                        product:product.product,
-                        total_price:data.price,
+                        product: product.product,
+                        total_price: data.price,
                         quantity: qtd
                     }
                     await Product.update(dataProduct, {
                         where: { id: product.product }, transaction
                     });
-                    
-                }else{
+
+                } else {
                     const material = await Stock.findOne({
                         where: {
                             material: data.material,
@@ -109,19 +109,19 @@ class PurchaseController {
                     });
                     qtd = parseInt(material.quantity || 0) + parseInt(data.quantity)
 
-                    
+
                     let dataStock = {
-                        material:material.material,
-                        total_price:data.price * data.quantity,
+                        material: material.material,
+                        total_price: data.price * data.quantity,
                         quantity: qtd
                     }
                     await Stock.update(dataStock, {
                         where: { material: material.material }, transaction
                     });
-                
+
                     let dataMaterial = {
-                        material:material.material,
-                        total_price:data.price,
+                        material: material.material,
+                        total_price: data.price,
                         quantity: qtd
                     }
                     await Material.update(dataMaterial, {
@@ -163,13 +163,13 @@ class PurchaseController {
         try {
             let data = req.body
 
-            if(data.quantity)data.quantity = parseInt(data.quantity)
+            if (data.quantity) data.quantity = parseInt(data.quantity)
 
-            if(purchase.quantity < data.quantity){
+            if (purchase.quantity < data.quantity) {
                 data.quantity -= purchase.quantity
-            } else if(purchase.quantity > data.quantity){
+            } else if (purchase.quantity > data.quantity) {
                 data.quantity = data.quantity - purchase.quantity
-            } else{
+            } else {
                 data.quantity = 0
             }
 
@@ -177,45 +177,48 @@ class PurchaseController {
 
             let objSupplierPurchase = {
                 purchase: purchase.id,
-                supplier:data.supplier
+                supplier: data.supplier
             }
 
-            if(hasSupplierPurchase){
+            if (hasSupplierPurchase) {
                 await SupplierPurchase.update(objSupplierPurchase, { where: { purchase: purchase.id }, transaction });
-            }else{
+            } else {
                 await SupplierPurchase.create(objSupplierPurchase, { transaction });
 
             }
 
             let qtd = 0;
-            if(data.product){
+            if (data.product) {
                 const product = await Stock.findOne({
                     where: {
                         product: data.product,
                     },
                 });
-                qtd = parseInt(product.quantity || 0) + parseInt(data.quantity)
+                if (data.status == 3) {
 
-                
-                let dataStock = {
-                    product:product.product,
-                    total_price:data.price * data.quantity,
-                    quantity: qtd
+                    qtd = parseInt(product.quantity || 0) + parseInt(data.quantity)
+
+
+                    let dataStock = {
+                        product: product.product,
+                        total_price: data.price * data.quantity,
+                        quantity: qtd
+                    }
+                    await Stock.update(dataStock, {
+                        where: { product: product.product }, transaction
+                    });
+
+                    let dataProduct = {
+                        product: product.id,
+                        total_price: data.price,
+                        quantity: qtd
+                    }
+                    await Product.update(dataProduct, {
+                        where: { id: product.product }, transaction
+                    });
                 }
-                await Stock.update(dataStock, {
-                    where: { product: product.product }, transaction
-                });
-               
-                let dataProduct = {
-                    product:product.id,
-                    total_price:data.price,
-                    quantity: qtd
-                }
-                await Product.update(dataProduct, {
-                    where: { id: product.product }, transaction
-                });
-                
-            }else{
+
+            } else {
                 const material = await Stock.findOne({
                     where: {
                         material: data.material,
@@ -223,24 +226,25 @@ class PurchaseController {
                 });
                 qtd = parseInt(material.quantity || 0) + parseInt(data.quantity)
 
-                
-                let dataStock = {
-                    material:material.material,
-                    total_price:data.price * data.quantity,
-                    quantity: qtd
+                if (data.status == 3) {
+                    let dataStock = {
+                        material: material.material,
+                        total_price: data.price * data.quantity,
+                        quantity: qtd
+                    }
+                    await Stock.update(dataStock, {
+                        where: { material: material.material }, transaction
+                    });
+
+                    let dataMaterial = {
+                        material: material.material,
+                        total_price: data.price,
+                        quantity: qtd
+                    }
+                    await Material.update(dataMaterial, {
+                        where: { id: material.material }, transaction
+                    });
                 }
-                await Stock.update(dataStock, {
-                    where: { material: material.material }, transaction
-                });
-               
-                let dataMaterial = {
-                    material:material.material,
-                    total_price:data.price,
-                    quantity: qtd
-                }
-                await Material.update(dataMaterial, {
-                    where: { id: material.material }, transaction
-                });
             }
 
             await transaction.commit();
@@ -255,25 +259,25 @@ class PurchaseController {
     }
 
     async delete(req, res) {
-        try{
+        try {
 
             const purchase = await Purchase.findOne({
                 where: {
                     id: req.params.id
                 }
             });
-            
+
             if (!purchase)
-            return res.status(400).json({
-                error: 'This Purchase does not exists!'
-            });
-            
+                return res.status(400).json({
+                    error: 'This Purchase does not exists!'
+                });
+
             await SupplierPurchase.destroy({ where: { purchase: req.params.id } });
             await purchase.destroy({ where: { id: req.params.id } });
             return res.status(200).json({
                 message: 'Purchase successfully deleted!'
             });
-        } catch(e){
+        } catch (e) {
             console.log(e)
         }
     }
