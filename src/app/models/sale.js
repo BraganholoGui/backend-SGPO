@@ -22,7 +22,7 @@ class Sale extends Model {
   static associate(models) {
     this.belongsTo(models.Product, {foreignKey: 'product'}),
     this.belongsTo(models.Buyer, {foreignKey: 'buyer'})
-    this.belongsTo(models.Buyer, {foreignKey: 'status'})
+    this.belongsTo(models.Status, {foreignKey: 'status'})
   }
 }
 

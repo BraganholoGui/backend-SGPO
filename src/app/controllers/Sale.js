@@ -7,10 +7,12 @@ import Product from '../models/product.js';
 import Buyer from '../models/buyer.js';
 import Person from '../models/person.js';
 import Stock from '../models/stock.js';
+import Status from '../models/status.js';
 
 const sequelize = database.connection;
 
 let include = [
+    utils.include(Status, { }, false, null, null, null),
     utils.include(Product, { }, false, null, null, null),
     utils.include(Buyer, { }, false, null, [
         utils.include(Person, { }, false, null, null, null),
@@ -49,11 +51,11 @@ class SaleController {
         let transaction = await sequelize.transaction();
         try {
             let data = req.body
+            if(!data.status) data.status = 1
 
             let sale_stored = await Sale.create(data, {
                 transaction
             });
-
             let qtd = 0;
             if(data.product){
                 const product = await Stock.findOne({
