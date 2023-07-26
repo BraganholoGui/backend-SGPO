@@ -56,7 +56,8 @@ class PurchaseController {
     async store(req, res) {
         let transaction = await sequelize.transaction();
         try {
-            let data = req.body
+            let data = req.body;
+            if (!data.status) data.status = 1
 
             let purchase_stored = await Purchase.create(data, {
                 transaction
@@ -169,8 +170,6 @@ class PurchaseController {
                 data.quantity -= purchase.quantity
             } else if (purchase.quantity > data.quantity) {
                 data.quantity = data.quantity - purchase.quantity
-            } else {
-                data.quantity = 0
             }
 
             let purchase_updated = await Purchase.update(data, { where: { id: purchase.id }, transaction })

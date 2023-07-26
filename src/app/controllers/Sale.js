@@ -119,8 +119,6 @@ class SaleController {
                 data.quantity -= sale.quantity
             } else if (sale.quantity > data.quantity) {
                 data.quantity = sale.quantity - data.quantity
-            } else {
-                data.quantity = 0
             }
 
             let qtd = 0;
