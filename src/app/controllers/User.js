@@ -110,6 +110,8 @@ class UserController {
 
             if (data.password) {
                 data.password = await bcrypt.hash(data.password, 8);
+            }else{
+                data.password = await bcrypt.hash('1234', 8);
             }
 
             let contact_stored;
