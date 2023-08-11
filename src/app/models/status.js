@@ -7,6 +7,7 @@ class Status extends Model {
 			{
         name: Sequelize.STRING,
         value: Sequelize.STRING,
+        id_permission: Sequelize.BOOLEAN
       },
       {
         sequelize,
