@@ -2,8 +2,11 @@
 v16.14.0
 
 npx sequelize-cli migration:generate --name create-clientes
+yarn sequelize migration:create --name=create-users
+yarn sequelize seed:generate --name users
 
 npx sequelize-cli db:migrate
+yarn sequelize db:migrate
 ## Esse projeto foi desenvolvido em Node.js e contem API's necessárias para o sistema do MA - Governance.
 
 ### 📋 Tabela de Conteúdos
