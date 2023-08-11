@@ -22,7 +22,7 @@ class RoleController {
 
 	async getById(req, res) {
 
-		const role = await Role.findOne({ where: { id: req.params.id,  } });
+		const role = await Role.findOne({ where: { id: req.params.id,  }, include });
 
 		return res.status(200).json({
 			role,

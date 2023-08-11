@@ -163,4 +163,7 @@ routes.get('/users', User.index)
 routes.get('/users/:id', User.getById)
 routes.delete('/users/:id', User.delete)
 
+// Sessions
+routes.post('/login', Session.login)
+
 export default routes;

@@ -6,7 +6,7 @@ class Role extends Model {
 		super.init(
 			{
         name: Sequelize.STRING,
-        status: Sequelize.STRING,
+        status: Sequelize.INTEGER,
       },
       {
         sequelize,
@@ -17,7 +17,6 @@ class Role extends Model {
     return this;
   }
   static associate(models) {
-    this.hasMany(models.User, {foreignKey: 'team'}),
     this.belongsTo(models.Status, {foreignKey: 'status'})
   }
 }
