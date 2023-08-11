@@ -1,10 +1,19 @@
 import Role from '../models/role.js';
+import Status from '../models/status.js';
 import content from './content.js';
+import utils from './utils.js';
+
+let include = [
+    utils.include(Status, {}, false, null, null, null),
+];
 
 class RoleController {
 
 	async index(req, res) {
-		const role = await Role.findAll();
+		const role = await Role.findAll({
+			order: ['id'],
+			include
+		});
 		return res.json(
 			content(role)
 		);
