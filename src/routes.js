@@ -165,5 +165,6 @@ routes.delete('/users/:id', User.delete)
 
 // Sessions
 routes.post('/login', Session.login)
+routes.put('/change-password/:id', Session.changePass)
 
 export default routes;

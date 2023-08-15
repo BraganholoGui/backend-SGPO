@@ -3,6 +3,9 @@ import bcrypt from 'bcryptjs';
 import User from '../models/user.js';
 import { callbackPromise } from 'nodemailer/lib/shared/index.js';
 
+import database from '../../database/index.js';
+const sequelize = database.connection;
+
 // import * as Yup from 'yup';
 // import authConfig from '../../config/auth.js';
 // import Address from '../models/Address.js';
@@ -48,6 +51,45 @@ class SessionController {
       token: token
     });
   }
+
+  async changePass(req, res) {
+
+    const user = await User.findByPk(req.params.id);
+
+    if (!user) {
+        return res.status(404).json({
+            error: 'User not found!'
+        });
+    }
+
+    let transaction = await sequelize.transaction();
+    try {
+        let data = req.body;
+
+        const validPassword = await bcrypt.compare(data.oldPassword, user.password_hash);
+        if (!validPassword) return res.status(400).send('Invalid Email or Password.')
+
+        if (data.newPass) {
+            data.newPass = await bcrypt.hash(data.newPass, 8);
+        }
+
+        let user_obj = {
+            password_hash: data.newPass,
+        }
+
+        let user_updated = await User.update(user_obj, { where: { id: user.id }, transaction })
+
+        await transaction.commit();
+
+        return res.json(user_updated);
+
+    } catch (error) {
+        await transaction.rollback();
+        return res.status(400).json({
+            error: 'Erro ao atualizar registro'
+        });
+    }
+}
 
   async decodeToken(token) {
     return { user: id, token: jwt.decode(token) }
