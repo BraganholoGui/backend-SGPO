@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/user.js';
 import bcrypt from 'bcryptjs';
+import User from '../models/user.js';
+import { callbackPromise } from 'nodemailer/lib/shared/index.js';
 
 // import * as Yup from 'yup';
 // import authConfig from '../../config/auth.js';
@@ -27,47 +28,25 @@ class SessionController {
 
     const { name, password } = req.body;
 
-    const user = await User.findOne({ where: { name } });
+    const user = await User.findOne({ where: { access_name: name } });
 
-    bcrypt.compare(password, user.password_hash, function (err, result) {
-      console.log(result)
-    });
-
-    let token = jwt.sign({ id: 'user.id' }, req.body.password, {
-      expiresIn: 9000000,
-    })
-
-    bcrypt.compare(myPlaintextPassword, hash, function (err, result) {
-      // result == true
-    });
-
-    token = 123
     if (!user) return res.status(401).json({ error: 'User not found' });
 
-    // if (!(await user.checkPassword(password)))
-    //   return res.status(401).json({ error: 'Password does not match' });
-
-    // if (!user.active)
-    //   return res.status(401).json({ error: 'User is not active' });
-
+    const validPassword = await bcrypt.compare(password, user.password_hash);
+    if (!validPassword) return res.status(400).send('Invalid Email or Password.')
+    
+    let token = jwt.sign({ id: user.id }, password, {
+        expiresIn: 9000000,
+      })
+   
+    // res.send(token);
 
     // await user.update({ updated_at: data_last_acess });
 
-    // return res.json({
-    //   user: {
-    //     active: user.active,
-    //     createdAt: user.createdAt,
-    //     email: user.email,
-    //     company: user.company,
-    //     id: user.id,
-    //     physical_person: user.physical_person,
-    //     pf:user.pf,
-    //     updatedAt: user.updatedAt
-    //   },
-    //   token: ..sign({ id: user.id }, authConfig.secret, {
-    //     expiresIn: authConfig.expiresIn,
-    //   }),
-    // });
+    return res.json({
+      user: user,
+      token: token
+    });
   }
 
   async decodeToken(token) {
