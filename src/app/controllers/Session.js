@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
-// import User from '../models/user';
+import User from '../models/user.js';
+import bcrypt from 'bcryptjs';
 
 // import * as Yup from 'yup';
 // import authConfig from '../../config/auth.js';
@@ -26,13 +27,21 @@ class SessionController {
 
     const { name, password } = req.body;
 
-    // const user = await User.findOne({ where: { name } });
+    const user = await User.findOne({ where: { name } });
+
+    bcrypt.compare(password, user.password_hash, function (err, result) {
+      console.log(result)
+    });
 
     let token = jwt.sign({ id: 'user.id' }, req.body.password, {
       expiresIn: 9000000,
     })
 
-token = 123 
+    bcrypt.compare(myPlaintextPassword, hash, function (err, result) {
+      // result == true
+    });
+
+    token = 123
     if (!user) return res.status(401).json({ error: 'User not found' });
 
     // if (!(await user.checkPassword(password)))
@@ -41,8 +50,6 @@ token = 123
     // if (!user.active)
     //   return res.status(401).json({ error: 'User is not active' });
 
-    // let data_last_acess = new Date();
-    // let current_last_acess = new Date(data_last_acess.valueOf() - data_last_acess.getTimezoneOffset() * 60000);
 
     // await user.update({ updated_at: data_last_acess });
 
