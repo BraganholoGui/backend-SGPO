@@ -1,12 +1,25 @@
+import { Op } from 'sequelize';
 import Team from '../models/team.js';
 import content from './content.js';
 
 class TeamController {
 
 	async index(req, res) {
-		const team = await Team.findAll();
+
+		let team = req.query.team;
+		let where = {}
+		if (team) {
+			where.name = {
+				[Op.like]: `%${team}%`
+			}
+		}
+
+		const teams = await Team.findAll({
+			order: ['id'],
+			where
+		});
 		return res.json(
-			content(team)
+			content(teams)
 		);
 
 	}

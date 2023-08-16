@@ -26,21 +26,18 @@ const sequelize = database.connection;
 let include = [
     utils.include(Role, { }, false, null, null, null),
     utils.include(Team, { }, false, null, null, null),
-    utils.include(TeamUser, { }, false, null, [
-        utils.include(Team, { }, false, null, null, null),
-    ], null),
+    // utils.include(TeamUser, { }, false, null, [
+    //     utils.include(Team, { }, false, null, null, null),
+    // ], null),
     utils.include(Person, { }, false, null, [
         utils.include(Contact, { }, false, null, null, null),
-    ], null),
+    ], null)
 ];
 class UserController {
 
 
     async index(req, res) {
         try {
-            let start = req.query.start ? req.query.start.replace(/T[0-9][0-9]/i, "T00") : null;
-            let end = req.query.end ? req.query.end.replace(/T[0-9][0-9]/i, "T23") : null;
-            let dateWhere = null;
             let access_name = req.query.accessName;
             let name = req.query.name;
             
@@ -65,18 +62,30 @@ class UserController {
                     [Op.like]:`%${access_name}%`
                   }
             }
-            // if(name){
-            //     where.name= {
-            //         [Op.like]:`%${name}%`
-            //       }
+          
+
+            // let nameWhere = req.query.name;
+            // if (nameWhere) {
+            //     include.push(utils.include(Person, { }, true, null, [
+            //         utils.include(Contact, { name: { [Op.like]:`%${nameWhere}%`} }, true, null, null, null),
+            //     ], null))
+            // } else{
+            //     include.push(utils.include(Person, { }, false, null, [
+            //         utils.include(Contact, { }, false, null, null, null),
+            //     ], null))
             // }
 
+            let teamWhere = req.query.team;
+            if (teamWhere) {
+                include.push(utils.include(TeamUser, {team: teamWhere }, true, null, [
+                    utils.include(Team, {id: teamWhere}, true, null, null, null),
+                ], null))
+            } else{
+                include.push(utils.include(TeamUser, { }, false, null, [
+                    utils.include(Team, { }, false, null, null, null),
+                ], null))
+            }
 
-            // if (dateWhere) {
-            //     where[Op.or] = [{
-            //         created_at: dateWhere
-            //     }]
-            // }
 
             let roleWhere = req.query.role;
             if (roleWhere) {

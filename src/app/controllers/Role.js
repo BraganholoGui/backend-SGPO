@@ -2,27 +2,44 @@ import Role from '../models/role.js';
 import Status from '../models/status.js';
 import content from './content.js';
 import utils from './utils.js';
+import { Op } from "sequelize";
 
 let include = [
-    utils.include(Status, {}, false, null, null, null),
+	// utils.include(Status, {}, false, null, null, null),
 ];
 
 class RoleController {
 
 	async index(req, res) {
-		const role = await Role.findAll({
+		let role = req.query.role;
+		let where = {}
+		if (role) {
+			where.name = {
+				[Op.like]: `%${role}%`
+			}
+		}
+		let statusWhere = req.query.status;
+		if (statusWhere) {
+			include.push(utils.include(Status, { value: statusWhere }, true, null, null, null))
+		} else {
+			include.push(utils.include(Status, {}, false, null, null, null))
+		}
+
+
+		const roles = await Role.findAll({
 			order: ['id'],
-			include
+			include,
+			where
 		});
 		return res.json(
-			content(role)
+			content(roles)
 		);
 
 	}
 
 	async getById(req, res) {
 
-		const role = await Role.findOne({ where: { id: req.params.id,  }, include });
+		const role = await Role.findOne({ where: { id: req.params.id, }, include });
 
 		return res.status(200).json({
 			role,
