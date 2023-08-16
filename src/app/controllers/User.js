@@ -38,10 +38,15 @@ class UserController {
 
     async index(req, res) {
         try {
-            // let start = req.query.start ? req.query.start.replace(/T[0-9][0-9]/i, "T00") : null;
-            // let end = req.query.end ? req.query.end.replace(/T[0-9][0-9]/i, "T23") : null;
-            // let dateWhere = null;
-
+            let start = req.query.start ? req.query.start.replace(/T[0-9][0-9]/i, "T00") : null;
+            let end = req.query.end ? req.query.end.replace(/T[0-9][0-9]/i, "T23") : null;
+            let dateWhere = null;
+            let access_name = req.query.accessName;
+            let name = req.query.name;
+            
+            let where = {
+                
+            }
             // if (start && end) {
             //     dateWhere = {
             //         [Op.between]: [start, end]
@@ -55,10 +60,17 @@ class UserController {
             //         [Op.lte]: end
             //     }
             // }
-
-            // let where = {
-            //     
+            if(access_name){
+                where.access_name= {
+                    [Op.like]:`%${access_name}%`
+                  }
+            }
+            // if(name){
+            //     where.name= {
+            //         [Op.like]:`%${name}%`
+            //       }
             // }
+
 
             // if (dateWhere) {
             //     where[Op.or] = [{
@@ -66,16 +78,15 @@ class UserController {
             //     }]
             // }
 
-            // let unitWhere = req.query.unit;
-            // if (unitWhere) {
-            //     include.push(utils.include(Unit, { , id: unitWhere }, true, null))
-            // } else {
-            //     include.push(utils.include(Unit, {  }, false, null))
-            // }
+            let roleWhere = req.query.role;
+            if (roleWhere) {
+                include.push(utils.include(Role, { id: roleWhere }, true, null))
+            } 
 
             const users = await User.findAll({
                 order: ['id'],
-                include
+                include,
+                where
             });
             return res.json(
                 content(users)
