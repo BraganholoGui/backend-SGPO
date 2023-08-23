@@ -8,21 +8,55 @@ import content from './content.js';
 import Role from '../models/role.js';
 import Contact from '../models/contact.js';
 import utils from './utils.js';
+import { Op } from 'sequelize';
 
 const sequelize = database.connection;
 
 let include = [
-    utils.include(Person, { }, false, null, [
-        utils.include(Contact, { }, false, null, null, null),
-    ], null),
+   
 ];
 
 class SupplierController {
     async index(req, res) {
+        let cnpj = req.query.cnpj;
+		let where = {}
+		if (cnpj) {
+			where.cnpj = {
+				[Op.like]: `%${cnpj}%`
+			}
+		}
+
+        let nameWhere = req.query.name;
+        if (nameWhere) {
+            include.push( utils.include(Person, { name:nameWhere }, true, null, [
+                utils.include(Contact, { }, false, null, null, null),
+            ], null))
+        }
+        
+        let emailWhere = req.query.email;
+        if (emailWhere) {
+            include.push( utils.include(Person, { }, true, null, [
+                utils.include(Contact, {email: emailWhere }, true, null, null, null),
+            ], null))
+        }
+        let phoneWhere = req.query.phone;
+        if (phoneWhere) {
+            include.push( utils.include(Person, { }, true, null, [
+                utils.include(Contact, {phone: phoneWhere }, true, null, null, null),
+            ], null))
+        }
+
+        if(!nameWhere && !emailWhere && !phoneWhere){
+            include.push( utils.include(Person, { }, false, null, [
+                utils.include(Contact, { }, false, null, null, null),
+            ], null))
+        }
+
         try {
             const suppliers = await Supplier.findAll({
                 order: ['id'],
-                include
+                include,
+                where
             });
             return res.json(
                 content(suppliers)

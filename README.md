@@ -7,6 +7,11 @@ yarn sequelize seed:generate --name users
 
 npx sequelize-cli db:migrate
 yarn sequelize db:migrate
+yarn sequelize db:seed:all
+
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+
+flush privileges;
 ## Esse projeto foi desenvolvido em Node.js e contem API's necessárias para o sistema do MA - Governance.
 
 ### 📋 Tabela de Conteúdos
