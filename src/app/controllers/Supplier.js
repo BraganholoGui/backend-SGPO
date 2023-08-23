@@ -28,21 +28,27 @@ class SupplierController {
 
         let nameWhere = req.query.name;
         if (nameWhere) {
-            include.push( utils.include(Person, { name:nameWhere }, true, null, [
-                utils.include(Contact, { }, false, null, null, null),
+            include.push( utils.include(Person, { name:{
+                [Op.like]: `%${nameWhere}%`
+            } }, true, null, [
+                utils.include(Contact, { }, true, null, null, null),
             ], null))
         }
         
         let emailWhere = req.query.email;
         if (emailWhere) {
             include.push( utils.include(Person, { }, true, null, [
-                utils.include(Contact, {email: emailWhere }, true, null, null, null),
+                utils.include(Contact, {email: {
+                    [Op.like]: `%${emailWhere}%`
+                } }, true, null, null, null),
             ], null))
         }
         let phoneWhere = req.query.phone;
         if (phoneWhere) {
             include.push( utils.include(Person, { }, true, null, [
-                utils.include(Contact, {phone: phoneWhere }, true, null, null, null),
+                utils.include(Contact, {phone: {
+                    [Op.like]: `%${phoneWhere}%`
+                } }, true, null, null, null),
             ], null))
         }
 

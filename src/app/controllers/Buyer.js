@@ -8,21 +8,61 @@ import content from './content.js';
 import Role from '../models/role.js';
 import Contact from '../models/contact.js';
 import utils from './utils.js';
+import { Op } from 'sequelize';
 
 const sequelize = database.connection;
 
 let include = [
-    utils.include(Person, { }, false, null, [
-        utils.include(Contact, { }, false, null, null, null),
-    ], null),
+    
 ];
 class BuyerController {
     async index(req, res) {
+        let cnpj = req.query.cnpj;
+		let where = {}
+		if (cnpj) {
+			where.cpf_cnpj = {
+				[Op.like]: `%${cnpj}%`
+			}
+		}
+
+        let nameWhere = req.query.name;
+        if (nameWhere) {
+            include.push( utils.include(Person, { name:{
+                [Op.like]: `%${nameWhere}%`
+            } }, true, null, [
+                utils.include(Contact, { }, true, null, null, null),
+            ], null))
+        }
+        
+        let emailWhere = req.query.email;
+        if (emailWhere) {
+            include.push( utils.include(Person, { }, true, null, [
+                utils.include(Contact, {email: {
+                    [Op.like]: `%${emailWhere}%`
+                } }, true, null, null, null),
+            ], null))
+        }
+        let phoneWhere = req.query.phone;
+        if (phoneWhere) {
+            include.push( utils.include(Person, { }, true, null, [
+                utils.include(Contact, {phone: {
+                    [Op.like]: `%${phoneWhere}%`
+                } }, true, null, null, null),
+            ], null))
+        }
+
+        if(!nameWhere && !emailWhere && !phoneWhere){
+            include.push( utils.include(Person, { }, false, null, [
+                utils.include(Contact, { }, false, null, null, null),
+            ], null))
+        }
+        
         try {
             const buyers = await Buyer.findAll({
                 order: ['id'],
-                include
-            });
+                include,
+                where
+            });5
             return res.json(
                 content(buyers)
             );
