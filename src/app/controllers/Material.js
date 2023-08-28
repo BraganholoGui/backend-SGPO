@@ -5,14 +5,45 @@ import content from './content.js';
 import Stock from '../models/stock.js';
 import Purchase from '../models/purchase.js';
 import SupplierPurchase from '../models/supplierPurchase.js';
+import { Op } from 'sequelize';
 
 const sequelize = database.connection;
 
 class MaterialController {
     async index(req, res) {
         try {
+            let access_name = req.query.accessName;
+            let name = req.query.name;
+            let description = req.query.description;
+            let price = req.query.price;
+            let quantityMin = req.query.quantityMin;
+            
+            let where = {
+                
+            }
+            
+            if(name){
+                where.name= {
+                    [Op.like]:`%${name}%`
+                  }
+            }
+            if(description){
+                where.description= {
+                    [Op.like]:`%${description}%`
+                  }
+            }
+            if(price){
+                where.price= {
+                    [Op.lte]:Number(price)
+                  }
+            }
+            if(quantityMin){
+                where.quantity_min=quantityMin
+            }
+          
             const materials = await Material.findAll({
                 order: ['id'],
+                where
             });
             return res.json(
                 content(materials)
