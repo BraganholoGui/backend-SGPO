@@ -10,6 +10,7 @@ import Supplier from '../models/supplier.js';
 import SupplierPurchase from '../models/supplierPurchase.js';
 import Stock from '../models/stock.js';
 import Status from '../models/status.js';
+import Contact from '../models/contact.js';
 
 const sequelize = database.connection;
 
@@ -19,7 +20,7 @@ let include = [
     utils.include(Material, {}, false, null, null, null),
     utils.include(SupplierPurchase, {}, false, null, [
         utils.include(Supplier, {}, false, null, [
-            utils.include(Person, {}, false, null, null, null),
+            utils.include(Person, {}, false, null, [ utils.include(Contact, {}, false, null, null, null),], null),
         ], null),
     ], null),
 ];
@@ -27,6 +28,45 @@ let include = [
 class PurchaseController {
     async index(req, res) {
         try {
+
+            let supplier = req.query.supplier;
+            let status = req.query.status;
+            let product = req.query.product;
+
+
+            if (supplier) {
+                include.push(utils.include(SupplierPurchase, {supplier:supplier}, true, null, [
+                    utils.include(Supplier, {}, false, null, [
+                        utils.include(Person, {}, false, null, [ utils.include(Contact, {}, false, null, null, null),], null),
+                    ], null),
+                ], null),)
+            } else{
+                include.push(utils.include(SupplierPurchase, {}, false, null, [
+                    utils.include(Supplier, {}, false, null, [
+                        utils.include(Person, {}, false, null, [ utils.include(Contact, {}, false, null, null, null),], null),
+                    ], null),
+                ], null),)
+            }
+
+
+            if (status) {
+                include.push(utils.include(Status, {id: status}, true, null, null, null),)
+            } else{
+                include.push(utils.include(Status, {}, true, null, null, null),)
+            }
+            if (product) {
+                include.push(utils.include(Product, {id:product}, true, null, null, null),)
+            } else{
+                include.push(utils.include(Product, {}, false, null, null, null),)
+            }
+
+            if(!buyer && !status && !product){
+                include.push( utils.include(Status, {}, false, null, null, null),
+                utils.include(Product, {}, false, null, null, null),
+                utils.include(Buyer, {}, false, null, [
+                    utils.include(Person, {}, false, null, [utils.include(Contact, {}, false, null, null, null),], null),
+                ], null),)
+            }
             const purchases = await Purchase.findAll({
                 order: ['id'],
                 include
