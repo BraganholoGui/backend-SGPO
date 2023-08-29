@@ -37,7 +37,7 @@ class MaterialController {
                   }
             }
             if(quantityMin){
-                where.quantity_min=quantityMin
+                where = {...where,quantity_min:quantityMin}
             }
           
             const materials = await Material.findAll({
