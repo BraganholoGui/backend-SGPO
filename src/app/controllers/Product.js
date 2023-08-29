@@ -7,6 +7,7 @@ import Stock from '../models/stock.js';
 import Purchase from '../models/purchase.js';
 import SupplierPurchase from '../models/supplierPurchase.js';
 import Sale from '../models/sale.js';
+import { Op } from 'sequelize';
 
 const sequelize = database.connection;
 
@@ -15,8 +16,36 @@ class ProductController {
 
     async index(req, res) {
         try {
+            let name = req.query.name;
+            let description = req.query.description;
+            let price = req.query.price;
+            let quantityMin = req.query.quantityMin;
+            
+            let where = {
+                
+            }
+            
+            if(name){
+                where.name= {
+                    [Op.like]:`%${name}%`
+                  }
+            }
+            if(description){
+                where.description= {
+                    [Op.like]:`%${description}%`
+                  }
+            }
+            if(price){
+                where.price= {
+                    [Op.lte]:Number(price)
+                  }
+            }
+            if(quantityMin){
+                where.quantity_min=quantityMin
+            }
             const products = await Product.findAll({
                 order: ['id'],
+                where
             });
             return res.json(
                 content(products)

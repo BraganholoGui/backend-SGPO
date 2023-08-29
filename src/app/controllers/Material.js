@@ -12,7 +12,6 @@ const sequelize = database.connection;
 class MaterialController {
     async index(req, res) {
         try {
-            let access_name = req.query.accessName;
             let name = req.query.name;
             let description = req.query.description;
             let price = req.query.price;
