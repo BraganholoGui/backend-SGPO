@@ -8,6 +8,7 @@ import Buyer from '../models/buyer.js';
 import Person from '../models/person.js';
 import Stock from '../models/stock.js';
 import Status from '../models/status.js';
+import Contact from '../models/contact.js';
 
 const sequelize = database.connection;
 
@@ -15,12 +16,47 @@ let include = [
     utils.include(Status, {}, false, null, null, null),
     utils.include(Product, {}, false, null, null, null),
     utils.include(Buyer, {}, false, null, [
-        utils.include(Person, {}, false, null, null, null),
+        utils.include(Person, {}, false, null, [utils.include(Contact, {}, false, null, null, null),], null),
     ], null),
 ];
 class SaleController {
     async index(req, res) {
         try {
+            let buyer = req.query.buyer;
+            let status = req.query.status;
+            let product = req.query.product;
+
+
+            if (buyer) {
+                include.push(utils.include(Buyer, {id: buyer}, true, null, [
+                    utils.include(Person, {}, false, null, [utils.include(Contact, {}, false, null, null, null),], null),
+                ], null))
+            } else{
+                include.push(utils.include(Buyer, {}, true, null, [
+                    utils.include(Person, {}, false, null, [utils.include(Contact, {}, false, null, null, null),], null),
+                ], null))
+            }
+
+
+            if (status) {
+                include.push(utils.include(Status, {id: status}, true, null, null, null),)
+            } else{
+                include.push(utils.include(Status, {}, true, null, null, null),)
+            }
+            if (product) {
+                include.push(utils.include(Product, {id:product}, true, null, null, null),)
+            } else{
+                include.push(utils.include(Product, {}, false, null, null, null),)
+            }
+
+            if(!buyer && !status && !product){
+                include.push( utils.include(Status, {}, false, null, null, null),
+                utils.include(Product, {}, false, null, null, null),
+                utils.include(Buyer, {}, false, null, [
+                    utils.include(Person, {}, false, null, [utils.include(Contact, {}, false, null, null, null),], null),
+                ], null),)
+            }
+
             const sales = await Sale.findAll({
                 order: ['id'],
                 include

@@ -1,13 +1,25 @@
+import { Op } from 'sequelize';
 import Theme from '../models/theme.js';
 import content from './content.js';
 
 class ThemeController {
 
 	async index(req, res) {
-		const theme = await Theme.findAll();
+		let theme = req.query.theme;
+		let where = {}
+		if (theme) {
+			where.name = {
+				[Op.like]: `%${theme}%`
+			}
+		}
+		const themes = await Theme.findAll({
+			order: ['id'],
+			where
+		});
 		return res.json(
-			content(theme)
+			content(themes)
 		);
+
 
 	}
 

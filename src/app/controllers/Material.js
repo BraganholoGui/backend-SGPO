@@ -37,7 +37,9 @@ class MaterialController {
                   }
             }
             if(quantityMin){
-                where = {...where,quantity_min:quantityMin}
+                where.quantity_min= {
+                    [Op.lte]:Number(quantityMin)
+                  }
             }
           
             const materials = await Material.findAll({

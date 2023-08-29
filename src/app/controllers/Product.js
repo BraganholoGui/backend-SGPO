@@ -41,7 +41,9 @@ class ProductController {
                   }
             }
             if(quantityMin){
-                where = {...where,quantity_min:quantityMin}
+                where.quantity_min= {
+                    [Op.lte]:Number(quantityMin)
+                  }
             }
             const products = await Product.findAll({
                 order: ['id'],
