@@ -17,14 +17,16 @@ import Status from '../models/status.js';
 const sequelize = database.connection;
 
 let include = [
-    utils.include(User, { id: true }, true, null, null, null),
-    utils.include(Theme, { id: true }, true, null, null, null),
-    utils.include(Priority, { id: true }, true, null, null, null),
-    utils.include(Status, { id: true }, true, null, null, null),
+    utils.include(User, {}, false, null, [
+        utils.include(Person, {}, false, null, [
+            utils.include(Contact, { }, false, null, null, null),
+        ], null),
+    ], null),
+    utils.include(Theme, { }, false, null, null, null),
+    utils.include(Priority, { }, false, null, null, null),
+    utils.include(Status, { }, false, null, null, null),
 ];
 class TaskController {
-
-
     async index(req, res) {
         try {
             // let start = req.query.start ? req.query.start.replace(/T[0-9][0-9]/i, "T00") : null;
@@ -64,7 +66,7 @@ class TaskController {
 
             const tasks = await Task.findAll({
                 order: ['id'],
-                // include 
+                include 
             });
             return res.json(
                 content(tasks)

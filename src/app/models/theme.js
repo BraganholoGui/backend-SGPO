@@ -15,6 +15,10 @@ class Theme extends Model {
     );
     return this;
   }
+
+  static associate(models) {
+    this.hasMany(models.Task, {foreignKey: 'theme'})
+  }
 }
 
 export default Theme;

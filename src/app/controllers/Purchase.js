@@ -11,65 +11,84 @@ import SupplierPurchase from '../models/supplierPurchase.js';
 import Stock from '../models/stock.js';
 import Status from '../models/status.js';
 import Contact from '../models/contact.js';
+import { Op } from 'sequelize';
 
 const sequelize = database.connection;
 
 let include = [
-    utils.include(Status, {}, false, null, null, null),
-    utils.include(Product, {}, false, null, null, null),
-    utils.include(Material, {}, false, null, null, null),
-    utils.include(SupplierPurchase, {}, false, null, [
-        utils.include(Supplier, {}, false, null, [
-            utils.include(Person, {}, false, null, [ utils.include(Contact, {}, false, null, null, null),], null),
-        ], null),
-    ], null),
+    // utils.include(Status, {}, false, null, null, null),
+    // utils.include(Product, {}, false, null, null, null),
+    // utils.include(Material, {}, false, null, null, null),
+    // utils.include(SupplierPurchase, {}, false, null, [
+    //     utils.include(Supplier, {}, false, null, [
+    //         utils.include(Person, {}, false, null, [utils.include(Contact, {}, false, null, null, null),], null),
+    //     ], null),
+    // ], null),
 ];
 
 class PurchaseController {
     async index(req, res) {
         try {
-
+            let start = req.query.start ? req.query.start : null;
+            let end = req.query.end ? req.query.end : null;
             let supplier = req.query.supplier;
             let status = req.query.status;
-            let product = req.query.product;
+            let name = req.query.name;
+            let checked = req.query.name;
+            let endD = req.query.endD;
+            let where = {}
 
+            // if (endD) {
+            //     where.end = {
+            //         [Op.between]: [start, end]
+            //     }
+            // }
 
             if (supplier) {
-                include.push(utils.include(SupplierPurchase, {supplier:supplier}, true, null, [
+                include.push(utils.include(SupplierPurchase, { supplier: supplier }, true, null, [
                     utils.include(Supplier, {}, false, null, [
-                        utils.include(Person, {}, false, null, [ utils.include(Contact, {}, false, null, null, null),], null),
+                        utils.include(Person, {}, false, null, [utils.include(Contact, {}, false, null, null, null),], null),
                     ], null),
                 ], null),)
-            } else{
+            } else {
                 include.push(utils.include(SupplierPurchase, {}, false, null, [
                     utils.include(Supplier, {}, false, null, [
-                        utils.include(Person, {}, false, null, [ utils.include(Contact, {}, false, null, null, null),], null),
+                        utils.include(Person, {}, false, null, [utils.include(Contact, {}, false, null, null, null),], null),
                     ], null),
                 ], null),)
             }
 
 
             if (status) {
-                include.push(utils.include(Status, {id: status}, true, null, null, null),)
-            } else{
-                include.push(utils.include(Status, {}, true, null, null, null),)
-            }
-            if (product) {
-                include.push(utils.include(Product, {id:product}, true, null, null, null),)
-            } else{
-                include.push(utils.include(Product, {}, false, null, null, null),)
+                include.push(utils.include(Status, { id: status }, true, null, null, null),)
+            } else {
+                include.push(utils.include(Status, {}, false, null, null, null),)
             }
 
-            if(!buyer && !status && !product){
-                include.push( utils.include(Status, {}, false, null, null, null),
-                utils.include(Product, {}, false, null, null, null),
-                utils.include(Buyer, {}, false, null, [
-                    utils.include(Person, {}, false, null, [utils.include(Contact, {}, false, null, null, null),], null),
-                ], null),)
+            if (name) {
+                if (checked) {
+                    include.push(utils.include(Product, { id: name }, true, null, null, null))
+                } else {
+                    include.push(utils.include(Material, { id: name }, true, null, null, null))
+                }
+            } else {
+                include.push(utils.include(Product, {}, false, null, null, null), utils.include(Material, {}, false, null, null, null))
+            }
+
+            if (!supplier && !status && !name) {
+                include.push(utils.include(Status, {}, false, null, null, null),
+                    utils.include(Product, {}, false, null, null, null),
+                    utils.include(Material, {}, false, null, null, null),
+                    utils.include(SupplierPurchase, {}, false, null, [
+                        utils.include(Supplier, {}, false, null, [
+                            utils.include(Person, {}, false, null, [utils.include(Contact, {}, false, null, null, null),], null),
+                        ], null),
+                    ], null),)
             }
             const purchases = await Purchase.findAll({
                 order: ['id'],
-                include
+                include,
+                where
             });
             return res.json(
                 content(purchases)
