@@ -4,6 +4,11 @@ import User from '../models/user.js';
 import { callbackPromise } from 'nodemailer/lib/shared/index.js';
 
 import database from '../../database/index.js';
+import Role from '../models/role.js';
+import Team from '../models/team.js';
+import Person from '../models/person.js';
+import Contact from '../models/contact.js';
+import utils from './utils.js';
 const sequelize = database.connection;
 
 // import * as Yup from 'yup';
@@ -23,6 +28,16 @@ const sequelize = database.connection;
 //     ]), 'pf'),
 //   utils.include(Role, {  }, true, null, null, null),
 // ];
+let include = [
+    utils.include(Role, { }, false, null, null, null),
+    utils.include(Team, { }, false, null, null, null),
+    // utils.include(TeamUser, { }, false, null, [
+    //     utils.include(Team, { }, false, null, null, null),
+    // ], null),
+    utils.include(Person, { }, false, null, [
+        utils.include(Contact, { }, false, null, null, null),
+    ], null)
+];
 class SessionController {
 
   async login(req, res) {
@@ -31,7 +46,7 @@ class SessionController {
 
     const { name, password } = req.body;
 
-    const user = await User.findOne({ where: { access_name: name } });
+    const user = await User.findOne({ where: { access_name: name }, include });
 
     if (!user) return res.status(401).json({ error: 'User not found' });
 
