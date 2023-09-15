@@ -50,7 +50,8 @@ class SessionController {
 
     if (!user) return res.status(401).json({ error: 'User not found' });
 
-    const validPassword = await bcrypt.compare(password, user.password_hash);
+    let validPassword = await bcrypt.compare(password, user.password_hash);
+    // validPassword = true
     if (!validPassword) return res.status(400).send('Invalid Email or Password.')
     
     let token = jwt.sign({ id: user.id }, password, {
@@ -81,8 +82,9 @@ class SessionController {
     try {
         let data = req.body;
 
-        const validPassword = await bcrypt.compare(data.oldPassword, user.password_hash);
-        if (!validPassword) return res.status(400).send('Invalid Email or Password.')
+        let validPassword = await bcrypt.compare(data.oldPassword, user.password_hash);
+        // validPassword = true
+        if (!validPassword) return res.status(400).send('Invalid Password.')
 
         if (data.newPass) {
             data.newPass = await bcrypt.hash(data.newPass, 8);

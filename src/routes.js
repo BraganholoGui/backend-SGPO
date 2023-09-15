@@ -98,6 +98,7 @@ routes.post('/tasks', Task.store)
 routes.put('/tasks/:id', Task.update)
 routes.get('/tasks', Task.index)
 routes.get('/tasks/:id', Task.getById)
+routes.get('/user-tasks/:id', Task.getByUserId)
 routes.delete('/tasks/:id', Task.delete)
 
 // Team

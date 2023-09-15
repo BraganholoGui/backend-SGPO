@@ -90,6 +90,20 @@ class TaskController {
             task,
         });
     }
+    async getByUserId(req, res) {
+
+        const task = await Task.findAll({
+            where: {
+                user: req.params.id,
+                
+            },
+            // include
+        });
+
+        return res.json(
+            content(task)
+        );
+    }
 
     async store(req, res) {
         let transaction = await sequelize.transaction();
