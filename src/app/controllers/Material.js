@@ -72,7 +72,15 @@ class MaterialController {
     async store(req, res) {
         let transaction = await sequelize.transaction();
         try {
-            let data = req.body
+            let data = req.body;
+
+            const materialStored = await Material.findOne({
+                where: {
+                    name: data.name,
+                },
+            });
+
+            if(materialStored) throw new Error("Nome do material já cadastrado!");
 
             let material = await Material.create(data, {
                 transaction
@@ -92,7 +100,7 @@ class MaterialController {
         } catch (error) {
             await transaction.rollback();
             return res.status(400).json({
-                error: 'Erro ao salvar registro'
+                error: error.message || 'Erro ao salvar registro'
             });
         }
     }
@@ -110,6 +118,14 @@ class MaterialController {
         let transaction = await sequelize.transaction();
         try {
             let data = req.body
+
+            const materialStored = await Material.findOne({
+                where: {
+                    name: data.name,
+                },
+            });
+
+            if(materialStored) throw new Error("Nome do material já cadastrado!");
           
             let material_updated = await Material.update(data, { where: { id: material.id }, transaction })
 
@@ -128,7 +144,7 @@ class MaterialController {
         } catch (error) {
             await transaction.rollback();
             return res.status(400).json({
-                error: 'Erro ao atualizar registro'
+                error: error.message || 'Erro ao atualizar registro'
             });
         }
     }

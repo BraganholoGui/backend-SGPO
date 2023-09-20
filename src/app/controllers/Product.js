@@ -77,6 +77,13 @@ class ProductController {
         try {
             let data = req.body
 
+            const productStored = await Product.findOne({
+                where: {
+                    name: data.name,
+                },
+            });
+
+            if(productStored) throw new Error("Nome do produto já cadastrado!");
             
             let product = await Product.create(data, {
                 transaction
@@ -96,7 +103,7 @@ class ProductController {
         } catch (error) {
             await transaction.rollback();
             return res.status(400).json({
-                error: 'Erro ao salvar registro'
+                error: error.message || 'Erro ao salvar registro'
             });
         }
     }
@@ -114,7 +121,14 @@ class ProductController {
         let transaction = await sequelize.transaction();
         try {
             let data = req.body
-          
+            const productStored = await Product.findOne({
+                where: {
+                    name: data.name,
+                },
+            });
+
+            if(productStored) throw new Error("Nome do produto já cadastrado!");
+
             let productUpdate = await Product.update(data, { where: { id: product.id }, transaction })
 
             let dataStock = {
@@ -132,7 +146,7 @@ class ProductController {
         } catch (error) {
             await transaction.rollback();
             return res.status(400).json({
-                error: 'Erro ao atualizar registro'
+                error: error.message ||'Erro ao atualizar registro'
             });
         }
     }

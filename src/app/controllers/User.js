@@ -124,9 +124,20 @@ class UserController {
     }
 
     async store(req, res) {
+
+        
         let transaction = await sequelize.transaction();
         try {
             let data = req.body
+            
+            const userStored = await User.findOne({
+                where: {
+                    access_name: data.access_name,
+                },
+            });
+
+            if(userStored) throw new Error("Nome de acesso já cadastrado!");
+
 
             if (data.password) {
                 data.password = await bcrypt.hash(data.password, 8);
@@ -168,7 +179,7 @@ class UserController {
         } catch (error) {
             await transaction.rollback();
             return res.status(400).json({
-                error: 'Erro ao salvar registro'
+                error: error.message || 'Erro ao salvar registro'
             });
         }
     }
@@ -186,6 +197,14 @@ class UserController {
         let transaction = await sequelize.transaction();
         try {
             let data = req.body
+
+            const userStored = await User.findOne({
+                where: {
+                    access_name: data.access_name,
+                },
+            });
+
+            if(userStored) throw new Error("Nome de acesso já cadastrado!");
 
             if (!data.password_hash && data.password) {
                 data.password = await bcrypt.hash(data.password, 8);
@@ -218,7 +237,7 @@ class UserController {
         } catch (error) {
             await transaction.rollback();
             return res.status(400).json({
-                error: 'Erro ao atualizar registro'
+                error: error.message || 'Erro ao atualizar registro'
             });
         }
     }
