@@ -45,7 +45,7 @@ class PriorityController {
 		if (!priority)
 			return res.status(400).json({ error: 'This Priority does not exists!' });
 
-		await priority.update({ active: false });
+		await priority.destroy();
 
 		return res.status(200).json({ message: 'Priority successfully deleted!' });
 	}

@@ -57,7 +57,7 @@ class ThemeController {
 		if (!theme)
 			return res.status(400).json({ error: 'This Theme does not exists!' });
 
-		await theme.update({ active: false });
+			await theme.destroy();
 
 		return res.status(200).json({ message: 'Theme successfully deleted!' });
 	}

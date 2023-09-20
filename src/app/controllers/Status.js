@@ -45,7 +45,7 @@ class StatusController {
 		if (!status)
 			return res.status(400).json({ error: 'This Status does not exists!' });
 
-		await status.update({ active: false });
+		await status.destroy();
 
 		return res.status(200).json({ message: 'Status successfully deleted!' });
 	}
