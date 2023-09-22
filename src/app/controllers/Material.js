@@ -16,32 +16,32 @@ class MaterialController {
             let description = req.query.description;
             let price = req.query.price;
             let quantityMin = req.query.quantityMin;
-            
+
             let where = {
-                
+
             }
-            
-            if(name){
-                where.name= {
-                    [Op.like]:`%${name}%`
-                  }
+
+            if (name) {
+                where.name = {
+                    [Op.like]: `%${name}%`
+                }
             }
-            if(description){
-                where.description= {
-                    [Op.like]:`%${description}%`
-                  }
+            if (description) {
+                where.description = {
+                    [Op.like]: `%${description}%`
+                }
             }
-            if(price){
-                where.price= {
-                    [Op.lte]:Number(price)
-                  }
+            if (price) {
+                where.price = {
+                    [Op.lte]: Number(price)
+                }
             }
-            if(quantityMin){
-                where.quantity_min= {
-                    [Op.lte]:Number(quantityMin)
-                  }
+            if (quantityMin) {
+                where.quantity_min = {
+                    [Op.lte]: Number(quantityMin)
+                }
             }
-          
+
             const materials = await Material.findAll({
                 order: ['id'],
                 where
@@ -59,7 +59,7 @@ class MaterialController {
         const material = await Material.findOne({
             where: {
                 id: req.params.id,
-                
+
             },
             // include
         });
@@ -80,7 +80,7 @@ class MaterialController {
                 },
             });
 
-            if(materialStored) throw new Error("Nome do material já cadastrado!");
+            if (materialStored) throw new Error("Nome do material já cadastrado!");
 
             let material = await Material.create(data, {
                 transaction
@@ -125,13 +125,15 @@ class MaterialController {
                 },
             });
 
-            if(materialStored) throw new Error("Nome do material já cadastrado!");
-          
+            if (materialStored)
+                if (material.name != materialStored.name)
+                    throw new Error("Nome do material já cadastrado!");
+
             let material_updated = await Material.update(data, { where: { id: material.id }, transaction })
 
             let dataStock = {
-                material:material.id,
-                total_price:data.price
+                material: material.id,
+                total_price: data.price
             }
             await Stock.update(dataStock, {
                 where: { material: material.id }, transaction
@@ -150,34 +152,34 @@ class MaterialController {
     }
 
     async delete(req, res) {
-        try{
+        try {
 
             const material = await Material.findOne({
                 where: {
-                id: req.params.id
-            }
-        });
-
-        if (!material)
-            return res.status(400).json({
-                error: 'This Material does not exists!'
+                    id: req.params.id
+                }
             });
 
-        const purchases = await Purchase.findAll({
-            where:{
-                material: req.params.id 
-            }
-        });
-        purchases.map(item =>{
-             SupplierPurchase.destroy({ where: { purchase: item.id } });
-        })
+            if (!material)
+                return res.status(400).json({
+                    error: 'This Material does not exists!'
+                });
 
-        await Purchase.destroy({ where: { material: req.params.id } });
-        await Material.destroy({ where: { id: req.params.id } });
-        return res.status(200).json({
-            message: 'Material successfully deleted!'
-        });
-        } catch(e){
+            const purchases = await Purchase.findAll({
+                where: {
+                    material: req.params.id
+                }
+            });
+            purchases.map(item => {
+                SupplierPurchase.destroy({ where: { purchase: item.id } });
+            })
+
+            await Purchase.destroy({ where: { material: req.params.id } });
+            await Material.destroy({ where: { id: req.params.id } });
+            return res.status(200).json({
+                message: 'Material successfully deleted!'
+            });
+        } catch (e) {
             console.log(e)
         }
     }

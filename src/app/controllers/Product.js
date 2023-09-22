@@ -20,30 +20,30 @@ class ProductController {
             let description = req.query.description;
             let price = req.query.price;
             let quantityMin = req.query.quantityMin;
-            
+
             let where = {
-                
+
             }
-            
-            if(name){
-                where.name= {
-                    [Op.like]:`%${name}%`
-                  }
+
+            if (name) {
+                where.name = {
+                    [Op.like]: `%${name}%`
+                }
             }
-            if(description){
-                where.description= {
-                    [Op.like]:`%${description}%`
-                  }
+            if (description) {
+                where.description = {
+                    [Op.like]: `%${description}%`
+                }
             }
-            if(price){
-                where.price= {
-                    [Op.lte]:Number(price)
-                  }
+            if (price) {
+                where.price = {
+                    [Op.lte]: Number(price)
+                }
             }
-            if(quantityMin){
-                where.quantity_min= {
-                    [Op.lte]:Number(quantityMin)
-                  }
+            if (quantityMin) {
+                where.quantity_min = {
+                    [Op.lte]: Number(quantityMin)
+                }
             }
             const products = await Product.findAll({
                 order: ['id'],
@@ -62,7 +62,7 @@ class ProductController {
         const product = await Product.findOne({
             where: {
                 id: req.params.id,
-                
+
             },
             // include
         });
@@ -83,8 +83,8 @@ class ProductController {
                 },
             });
 
-            if(productStored) throw new Error("Nome do produto já cadastrado!");
-            
+            if (productStored) throw new Error("Nome do produto já cadastrado!");
+
             let product = await Product.create(data, {
                 transaction
             });
@@ -127,13 +127,15 @@ class ProductController {
                 },
             });
 
-            if(productStored) throw new Error("Nome do produto já cadastrado!");
+            if (productStored)
+                if (product.name != productStored.name)
+                    throw new Error("Nome do produto já cadastrado!");
 
             let productUpdate = await Product.update(data, { where: { id: product.id }, transaction })
 
             let dataStock = {
-                product:product.id,
-                total_price:data.price
+                product: product.id,
+                total_price: data.price
             }
             await Stock.update(dataStock, {
                 where: { product: product.id }, transaction
@@ -146,42 +148,42 @@ class ProductController {
         } catch (error) {
             await transaction.rollback();
             return res.status(400).json({
-                error: error.message ||'Erro ao atualizar registro'
+                error: error.message || 'Erro ao atualizar registro'
             });
         }
     }
 
     async delete(req, res) {
-        try{
+        try {
 
             const product = await Product.findOne({
                 where: {
                     id: req.params.id
                 }
             });
-            
+
             if (!product)
-            return res.status(400).json({
-                error: 'This Product does not exists!'
-            });
-            
+                return res.status(400).json({
+                    error: 'This Product does not exists!'
+                });
+
             const purchases = await Purchase.findAll({
-            where:{
-                product: req.params.id 
-            }
+                where: {
+                    product: req.params.id
+                }
             });
-            purchases.map(item =>{
-                    SupplierPurchase.destroy({ where: { purchase: item.id } });
+            purchases.map(item => {
+                SupplierPurchase.destroy({ where: { purchase: item.id } });
             })
 
             await Purchase.destroy({ where: { product: req.params.id } });
-           
+
             const sales = await Sale.findAll({
-            where:{
-                product: req.params.id 
-            }
+                where: {
+                    product: req.params.id
+                }
             });
-            sales.map(item =>{
+            sales.map(item => {
                 Sale.destroy({ where: { product: item.product } });
             })
 
@@ -189,11 +191,11 @@ class ProductController {
             return res.status(200).json({
                 message: 'Product successfully deleted!'
             });
-        } catch(e){
+        } catch (e) {
             console.log(e)
         }
     }
-    
+
 }
 
 export default new ProductController();
