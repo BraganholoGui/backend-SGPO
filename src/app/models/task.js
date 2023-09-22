@@ -27,7 +27,7 @@ class Task extends Model {
   static associate(models) {
     this.belongsTo(models.Theme, {foreignKey: 'theme'}),
     this.belongsTo(models.User, {foreignKey: 'user'}),
-    this.belongsTo(models.User, {foreignKey: 'created_by'}),
+    this.belongsTo(models.User, {as: 'createdBy', foreignKey: 'created_by'}),
     this.belongsTo(models.Status, {foreignKey: 'status'}),
     this.belongsTo(models.Priority, {foreignKey: 'priority'})
   }

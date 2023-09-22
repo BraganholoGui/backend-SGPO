@@ -13,6 +13,7 @@ import User from '../models/user.js';
 import Theme from '../models/theme.js';
 import Priority from '../models/priority.js';
 import Status from '../models/status.js';
+import { Op } from 'sequelize';
 
 const sequelize = database.connection;
 
@@ -25,13 +26,19 @@ let include = [
     utils.include(Theme, { }, false, null, null, null),
     utils.include(Priority, { }, false, null, null, null),
     utils.include(Status, { }, false, null, null, null),
+    utils.include(User, {}, false, null, [
+        utils.include(Person, {}, false, null, [
+            utils.include(Contact, { }, false, null, null, null),
+        ], null),
+    ], 'createdBy'),
 ];
 class TaskController {
     async index(req, res) {
         try {
-            // let start = req.query.start ? req.query.start.replace(/T[0-9][0-9]/i, "T00") : null;
-            // let end = req.query.end ? req.query.end.replace(/T[0-9][0-9]/i, "T23") : null;
-            // let dateWhere = null;
+            let descriptionWhere = req.query.description;;
+            let userWhere = req.query.user;;
+            let themeWhere = req.query.theme;;
+            let priorityWhere = req.query.priority;;
 
             // if (start && end) {
             //     dateWhere = {
@@ -47,25 +54,29 @@ class TaskController {
             //     }
             // }
 
-            // let where = {
-            //     
-            // }
+            let where = {
+                
+            }
 
-            // if (dateWhere) {
-            //     where[Op.or] = [{
-            //         created_at: dateWhere
-            //     }]
-            // }
-
-            // let unitWhere = req.query.unit;
-            // if (unitWhere) {
-            //     include.push(utils.include(Unit, { , id: unitWhere }, true, null))
-            // } else {
-            //     include.push(utils.include(Unit, {  }, false, null))
-            // }
+            if (descriptionWhere) {
+                where.name = {
+                    [Op.like]: `%${descriptionWhere}%`
+                }
+            };
+            if (userWhere) {
+                where.user = userWhere;
+            }
+            if (themeWhere) {
+                where.theme = themeWhere;
+            }
+            if (priorityWhere) {
+                where.priority = priorityWhere;
+            }
+            
 
             const tasks = await Task.findAll({
                 order: ['id'],
+                where,
                 include 
             });
             return res.json(

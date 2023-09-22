@@ -24,13 +24,13 @@ import TeamUser from '../models/teamUser.js';
 const sequelize = database.connection;
 
 let include = [
-    utils.include(Role, { }, false, null, null, null),
-    utils.include(Team, { }, false, null, null, null),
+    utils.include(Role, {}, false, null, null, null),
+    utils.include(Team, {}, false, null, null, null),
     // utils.include(TeamUser, { }, false, null, [
     //     utils.include(Team, { }, false, null, null, null),
     // ], null),
-    utils.include(Person, { }, false, null, [
-        utils.include(Contact, { }, false, null, null, null),
+    utils.include(Person, {}, false, null, [
+        utils.include(Contact, {}, false, null, null, null),
     ], null)
 ];
 class UserController {
@@ -40,9 +40,9 @@ class UserController {
         try {
             let access_name = req.query.accessName;
             let name = req.query.name;
-            
+
             let where = {
-                
+
             }
             // if (start && end) {
             //     dateWhere = {
@@ -57,12 +57,12 @@ class UserController {
             //         [Op.lte]: end
             //     }
             // }
-            if(access_name){
-                where.access_name= {
-                    [Op.like]:`%${access_name}%`
-                  }
+            if (access_name) {
+                where.access_name = {
+                    [Op.like]: `%${access_name}%`
+                }
             }
-          
+
 
             // let nameWhere = req.query.name;
             // if (nameWhere) {
@@ -77,12 +77,12 @@ class UserController {
 
             let teamWhere = req.query.team;
             if (teamWhere) {
-                include.push(utils.include(TeamUser, {team: teamWhere }, true, null, [
-                    utils.include(Team, {id: teamWhere}, true, null, null, null),
+                include.push(utils.include(TeamUser, { team: teamWhere }, true, null, [
+                    utils.include(Team, { id: teamWhere }, true, null, null, null),
                 ], null))
-            } else{
-                include.push(utils.include(TeamUser, { }, false, null, [
-                    utils.include(Team, { }, false, null, null, null),
+            } else {
+                include.push(utils.include(TeamUser, {}, false, null, [
+                    utils.include(Team, {}, false, null, null, null),
                 ], null))
             }
 
@@ -90,7 +90,7 @@ class UserController {
             let roleWhere = req.query.role;
             if (roleWhere) {
                 include.push(utils.include(Role, { id: roleWhere }, true, null))
-            } 
+            }
 
             const users = await User.findAll({
                 order: ['id'],
@@ -106,7 +106,7 @@ class UserController {
 
     }
     async getById(req, res) {
-        try{
+        try {
 
             const user = await User.findOne({
                 where: {
@@ -114,34 +114,34 @@ class UserController {
                 },
                 include
             });
-    
+
             return res.status(200).json({
                 user
             });
-        } catch(e){
+        } catch (e) {
             console.log(e)
         }
     }
 
     async store(req, res) {
 
-        
+
         let transaction = await sequelize.transaction();
         try {
             let data = req.body
-            
+
             const userStored = await User.findOne({
                 where: {
                     access_name: data.access_name,
                 },
             });
 
-            if(userStored) throw new Error("Nome de acesso já cadastrado!");
+            if (userStored) throw new Error("Nome de acesso já cadastrado!");
 
 
             if (data.password) {
                 data.password = await bcrypt.hash(data.password, 8);
-            }else{
+            } else {
                 data.password = await bcrypt.hash('1234', 8);
             }
 
@@ -203,14 +203,15 @@ class UserController {
                     access_name: data.access_name,
                 },
             });
-
-            if(userStored) throw new Error("Nome de acesso já cadastrado!");
+            if (userStored)
+                if (user.access_name != userStored.access_name)
+                    throw new Error("Nome de acesso já cadastrado!");
 
             if (!data.password_hash && data.password) {
                 data.password = await bcrypt.hash(data.password, 8);
             }
 
-        
+
             let contact_updated = await Contact.update(data.contact, { where: { id: data.contact.id }, transaction })
 
             let person_obj = {
