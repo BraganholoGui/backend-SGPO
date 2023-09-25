@@ -20,15 +20,15 @@ const sequelize = database.connection;
 let include = [
     utils.include(User, {}, false, null, [
         utils.include(Person, {}, false, null, [
-            utils.include(Contact, { }, false, null, null, null),
+            utils.include(Contact, {}, false, null, null, null),
         ], null),
     ], null),
-    utils.include(Theme, { }, false, null, null, null),
-    utils.include(Priority, { }, false, null, null, null),
-    utils.include(Status, { }, false, null, null, null),
+    utils.include(Theme, {}, false, null, null, null),
+    utils.include(Priority, {}, false, null, null, null),
+    utils.include(Status, {}, false, null, null, null),
     utils.include(User, {}, false, null, [
         utils.include(Person, {}, false, null, [
-            utils.include(Contact, { }, false, null, null, null),
+            utils.include(Contact, {}, false, null, null, null),
         ], null),
     ], 'createdBy'),
 ];
@@ -55,7 +55,7 @@ class TaskController {
             // }
 
             let where = {
-                
+
             }
 
             if (descriptionWhere) {
@@ -72,12 +72,12 @@ class TaskController {
             if (priorityWhere) {
                 where.priority = priorityWhere;
             }
-            
+
 
             const tasks = await Task.findAll({
                 order: ['id'],
                 where,
-                include 
+                include
             });
             return res.json(
                 content(tasks)
@@ -92,7 +92,7 @@ class TaskController {
         const task = await Task.findOne({
             where: {
                 id: req.params.id,
-                
+
             },
             // include
         });
@@ -106,7 +106,7 @@ class TaskController {
         const task = await Task.findAll({
             where: {
                 user: req.params.id,
-                
+
             },
             // include
         });
@@ -120,6 +120,10 @@ class TaskController {
         let transaction = await sequelize.transaction();
         try {
             let data = req.body
+            if (data.end){
+                data.end = new Date(data.end)                
+                data.end.setHours(data.end.getHours() + 4);
+            }
 
             let task = await Task.create(data, {
                 transaction
@@ -148,8 +152,13 @@ class TaskController {
 
         let transaction = await sequelize.transaction();
         try {
-            let data = req.body
-          
+            let data = req.body;
+
+            if (data.end){
+                data.end = new Date(data.end)                
+                data.end.setHours(data.end.getHours() + 4);
+            }
+
             let task_updated = await Task.update(data, { where: { id: task.id }, transaction })
 
             await transaction.commit();

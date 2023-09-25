@@ -51,7 +51,7 @@ class SessionController {
     if (!user) return res.status(401).json({ error: 'User not found' });
 
     let validPassword = await bcrypt.compare(password, user.password_hash);
-    validPassword = true
+    // validPassword = true
     if (!validPassword) return res.status(400).send('Invalid Email or Password.')
     
     let token = jwt.sign({ id: user.id }, password, {
