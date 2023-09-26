@@ -116,7 +116,12 @@ class PurchaseController {
         let transaction = await sequelize.transaction();
         try {
             let data = req.body;
-            if (!data.status) data.status = 1
+            if (!data.status) data.status = 1;
+
+            if (data.end){
+                data.end = new Date(data.end)                
+                data.end.setHours(data.end.getHours() + 4);
+            }
 
             let purchase_stored = await Purchase.create(data, {
                 transaction
@@ -221,7 +226,12 @@ class PurchaseController {
 
         let transaction = await sequelize.transaction();
         try {
-            let data = req.body
+            let data = req.body;
+            
+            if (data.end){
+                data.end = new Date(data.end)                
+                data.end.setHours(data.end.getHours() + 4);
+            }
 
             if (data.quantity) data.quantity = parseInt(data.quantity)
 
