@@ -20,15 +20,16 @@ import Role from '../models/role.js';
 import Contact from '../models/contact.js';
 import Team from '../models/team.js';
 import TeamUser from '../models/teamUser.js';
+import Task from '../models/task.js';
 
 const sequelize = database.connection;
 
 let include = [
     utils.include(Role, {}, false, null, null, null),
     utils.include(Team, {}, false, null, null, null),
-    // utils.include(TeamUser, { }, false, null, [
-    //     utils.include(Team, { }, false, null, null, null),
-    // ], null),
+    utils.include(TeamUser, {}, false, null, [
+        utils.include(Team, {}, false, null, null, null),
+    ], null),
     utils.include(Person, {}, false, null, [
         utils.include(Contact, {}, false, null, null, null),
     ], null)
@@ -207,11 +208,6 @@ class UserController {
                 if (user.access_name != userStored.access_name)
                     throw new Error("Nome de acesso já cadastrado!");
 
-            if (!data.password_hash && data.password) {
-                data.password = await bcrypt.hash(data.password, 8);
-            }
-
-
             let contact_updated = await Contact.update(data.contact, { where: { id: data.contact.id }, transaction })
 
             let person_obj = {
@@ -223,7 +219,6 @@ class UserController {
 
             let user_obj = {
                 access_name: data.access_name,
-                password_hash: data.password,
                 person: person_updated.id,
                 team: data.team,
                 role: data.role,
@@ -244,220 +239,59 @@ class UserController {
     }
 
     async delete(req, res) {
-
-        const user = await User.findOne({
-            where: {
-                id: req.params.id
-            }
-        });
-
-        if (!user)
-            return res.status(400).json({
-                error: 'This User does not exists!'
-            });
-
-        await user.destroy();
-        return res.status(200).json({
-            message: 'User successfully deleted!'
-        });
-    }
-
-    async reenviarSenha(req, res) {
-        let email = req.body.email;
-
         try {
+            include.push(utils.include(Task, { user: req.params.id }, false, null, null, null))
             const user = await User.findOne({
                 where: {
-                    email: email
-                }
-            });
-            let obj = {}
-
-            if (!user) {
-                return res.status(400).json({
-                    error: 'Erro ao carregar usuario, favor entrar em contato com nosso suporte'
-                })
-            }
-
-            let id = user.dataValues.id;
-            obj.email = user.dataValues.email;
-            obj.physical_person = user.dataValues.physical_person;
-            obj.password_hash = user.dataValues.password_hash;
-            obj.company = user.dataValues.company;
-            obj.active = user.dataValues.active;
-            obj.createdAt = user.dataValues.createdAt;
-            obj.updatedAt = user.dataValues.updatedAt;
-
-            await sendEmail(email, id, res);
-
-            // return "";
-            return res.json(content("Email para definição de senha enviado com sucesso para ", email))
-        } catch (error) {
-            console.log(error)
-            return res.status(400).json({
-                error: 'Erro ao enviar email para definição de senha, entre em contato com nosso suporte!'
-            })
-        }
-    }
-
-    async CadastroEmail(req, res) {
-        let email = req.body.email;
-        let name = req.body.name;
-        let authSecret = 'redefinicaoSenha'
-        try {
-            let obj = {
-                email: email,
-                name: name
-            }
-
-            let token = jwt.sign({
-                obj
-            }, authSecret, {
-                expiresIn: 86400, // expires 24 horas
-            });
-            let linkTag = `<a href="http://localhost:6001/cadastrar/senha?token=${token}"> Redefinir senha</a>`;
-            let msg = `Por favor clique no link a seguir para criar sua senha <br><br>${linkTag}`;
-
-            try {
-                console.log(path.resolve(__dirname, "email.html"));
-                await fs.readFile(path.resolve(__dirname, "email.html"), "utf8", function (err, contents) {
-                    if (err) throw err;
-
-                    let msgContent = contents.replace("[CONTENT VALUE]", msg);
-
-                    const mailOptions = {
-                        from: "cleandev.contato@gmail.com",
-                        to: email,
-                        subject: "Cadastro de senha",
-                        html: msgContent
-                    };
-                    transporter.sendMail(mailOptions, function (err, info) {
-                        if (err) {
-                            console.log(err)
-                        } else {
-                            console.log("email enviado: " + info.response);
-                            return res.json(content("Email enviado com sucesso para ", email))
-                        }
-                    })
-                })
-            } catch (error) {
-                console.log(error)
-                return res.status(400).json({
-                    error: 'Erro ao cadastrar senha, entre em contato com nosso suporte!'
-                })
-            }
-            // return "";
-            return res.json(content("Email enviado com sucesso para ", email))
-        } catch (error) {
-            console.log(error)
-            return res.status(400).json({
-                error: 'Erro ao cadastrar senha, entre em contato com nosso suporte!'
-            })
-        }
-    }
-
-    async atualizarSenha(req, res) {
-        let authSecret = 'redefinicaoSenha'
-        let token = req.body.token
-        let password = req.body.password
-
-        let tokenInvalido = {
-            success: false,
-            userMessage: "Faça o login novamente!",
-            message: "Token inválido!",
-            status: 403
-        };
-
-        try {
-            let transaction = await sequelize.transaction();
-            let tokenAberto = await jwt.verify(token, authSecret);
-
-            let user = await User.findOne({
-                where: {
-                    id: tokenAberto.id
-                }
-            });
-
-            let obj = {}
-            obj.id = user.dataValues.id;
-            obj.email = user.dataValues.email;
-            obj.physical_person = user.dataValues.physical_person;
-            obj.password_hash = password;
-            obj.company = user.dataValues.company;
-            obj.active = user.dataValues.active;
-            obj.createdAt = user.dataValues.createdAt;
-            obj.updatedAt = user.dataValues.updatedAt;
-
-            obj.password_hash = await bcrypt.hash(obj.password_hash, 8);
-
-            obj.updatedAt = new Date();
-
-            let user_updated = await User.update(obj, {
-                where: {
-                    id: obj.id
+                    id: req.params.id
                 },
-                transaction
-            });;
-            transaction.commit();
+                include
+            });
 
-            return res.json(content("senha atualizada com sucesso", user_updated))
-        } catch (err) {
-            transaction.rollback();
-            throw tokenInvalido;
-        }
-    }
+            if (!user)
+                return res.status(400).json({
+                    error: 'This User does not exists!'
+                });
 
-    async CadastroSenha(req, res) {
-        let authSecret = 'redefinicaoSenha'
-        let token = req.body.token
-        let password = req.body.password
-
-        let tokenInvalido = {
-            success: false,
-            userMessage: "Faça o login novamente!",
-            message: "Token inválido!",
-            status: 403
-        };
-
-        try {
-            let transaction = await sequelize.transaction();
-            let tokenAberto = await jwt.verify(token, authSecret);
-
-            let obj = {
-                name: tokenAberto.name,
-                email: tokenAberto.obj.email,
-                password_hash: password,
-                company: '1',
-                pf: '1',
-                created_at: new Date,
-                updated_at: new Date
+            if (user.TeamUsers.length > 0) {
+                user.TeamUsers.map(item => {
+                    item.destroy({ where: { id: item.id } });
+                })
             }
+            if (user.Tasks?.length > 0) {
+                user.Tasks.map(item => {
+                    // if (user.Tasks?.length > 0) {
+                    //     user.Tasks.map(item => {
+                    //         let obj = {
+                    //             user: 2,
+                    //         }
+                    //         try{
+                    //             item.update(obj, { where: { id: item.id } })
+        
+                    //         }catch(e){
+                    //             console.log(e)
+                    //         }
+                    //     })
+                    // }
+                    item.destroy({ where: { id: item.id } });
+                })
+            }
+            await user.destroy({ where: { id: req.params.id } });
+            await user.Person.destroy({ where: { id: user.Person.id } });
+            await user.Person.Contact.destroy({ where: { id: user.Person.Contact.id } });
 
-            obj.password_hash = await bcrypt.hash(obj.password_hash, 8);
-
-            let user = await User.create(obj, {
-                transaction
+            return res.status(200).json({
+                message: 'User successfully deleted!'
             });
 
-            let user_menu = {
-                menu: '2',
-                usuario: user.id,
-                permission_read: '1',
-                permission_write: '1',
-            };
-            await UserMenu.create(user_menu, {
-                transaction
+        } catch (e) {
+            await transaction.rollback();
+            return res.status(400).json({
+                error: error.message || 'Erro ao atualizar registro'
             });
-
-
-            transaction.commit();
-
-            return res.json(content("senha criada com sucesso", user))
-        } catch (err) {
-            transaction.rollback();
-            throw tokenInvalido;
         }
     }
+
 }
 
 export default new UserController();

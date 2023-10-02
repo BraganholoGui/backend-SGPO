@@ -23,7 +23,8 @@ class User extends Model {
     this.belongsTo(models.Person, {foreignKey: 'person'}),
     this.belongsTo(models.Role, {foreignKey: 'role'}),
     this.belongsTo(models.Team, {foreignKey: 'team'}),
-    this.hasMany(models.TeamUser, {foreignKey: 'user'})
+    this.hasMany(models.TeamUser, {foreignKey: 'user'}),
+    this.hasMany(models.Task, {foreignKey: 'user'})
 
   }
 }
