@@ -18,6 +18,7 @@ class Role extends Model {
   }
   static associate(models) {
     this.belongsTo(models.Status, {foreignKey: 'status'})
+    this.hasMany(models.User, {foreignKey: 'role'})
   }
 }
 

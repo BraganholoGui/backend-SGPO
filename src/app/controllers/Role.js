@@ -1,11 +1,12 @@
 import Role from '../models/role.js';
 import Status from '../models/status.js';
+import User from '../models/user.js';
 import content from './content.js';
 import utils from './utils.js';
 import { Op } from "sequelize";
 
 let include = [
-	// utils.include(Status, {}, false, null, null, null),
+	utils.include(User, {}, false, null, null, null),
 ];
 
 class RoleController {
@@ -65,15 +66,25 @@ class RoleController {
 	}
 
 	async delete(req, res) {
+		try {
+			const role = await Role.findOne({ where: { id: req.params.id }, include });
 
-		const role = await Role.findOne({ where: { id: req.params.id } });
+			if (!role)
+				return res.status(400).json({ error: 'This Role does not exists!' });
 
-		if (!role)
-			return res.status(400).json({ error: 'This Role does not exists!' });
+			if(role.Users?.length > 0){
+				role.Users.map(item =>{
+					
+				})
+			}
 
-		await role.update({ active: false });
+			await role.destroy();
 
-		return res.status(200).json({ message: 'Role successfully deleted!' });
+			return res.status(200).json({ message: 'Role successfully deleted!' });
+		} catch (e) {
+			console.log(e)
+		}
+
 	}
 }
 

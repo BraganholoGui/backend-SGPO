@@ -23,7 +23,7 @@ module.exports = {
         allowNull: true
       },
       total_price: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: true
       },
       created_at: {
