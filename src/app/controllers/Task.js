@@ -94,7 +94,7 @@ class TaskController {
                 id: req.params.id,
 
             },
-            // include
+            include
         });
 
         return res.status(200).json({
@@ -108,7 +108,7 @@ class TaskController {
                 user: req.params.id,
 
             },
-            // include
+            include
         });
 
         return res.json(
@@ -174,22 +174,26 @@ class TaskController {
     }
 
     async delete(req, res) {
-
-        const task = await Task.findOne({
-            where: {
-                id: req.params.id
-            }
-        });
-
-        if (!task)
-            return res.status(400).json({
-                error: 'This Task does not exists!'
+        try{
+            const task = await Task.findOne({
+                where: {
+                    id: req.params.id
+                }
+            });
+    
+            if (!task)
+                return res.status(400).json({
+                    error: 'This Task does not exists!'
+                });
+    
+            await task.destroy();
+            return res.status(200).json({
+                message: 'Task successfully deleted!'
             });
 
-        await task.destroy();
-        return res.status(200).json({
-            message: 'Task successfully deleted!'
-        });
+        }catch(e){
+            console.info(e)
+        }
     }
 
 }
