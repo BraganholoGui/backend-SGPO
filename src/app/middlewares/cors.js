@@ -3,6 +3,7 @@ const cors = function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, Device, user.login, User-Agent, user.password, skiploading, skiperror, token");
     res.header("Access-Control-Allow-Methods", "POST,PUT,DELETE,GET,OPTIONS");
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3001');
 
     if (req.method === 'OPTIONS') {
         res.status(200).send();

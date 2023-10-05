@@ -168,6 +168,8 @@ class UserController {
                 person: person_stored.id,
                 // team: data.team,
                 role: data.role,
+                photo: data.photo,
+
             }
 
             let user_stored = await User.create(user_obj, {
@@ -220,8 +222,9 @@ class UserController {
             let user_obj = {
                 access_name: data.access_name,
                 person: person_updated.id,
-                team: data.team,
+                // team: data.team,
                 role: data.role,
+                photo: data.photo,
             }
 
             let user_updated = await User.update(user_obj, { where: { id: user.id }, transaction })

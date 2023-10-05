@@ -6,7 +6,6 @@ const app = express()
 
 app.use(bodyParser.json())
 app.use( '/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile))
-app.use
 app.listen(3000, () => {
   console.log("Server is running!\nAPI documentation: http://localhost:3000/doc")
 })

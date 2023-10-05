@@ -8,6 +8,7 @@ class User extends Model {
         password_hash: Sequelize.STRING,
         person: Sequelize.INTEGER,
         role: Sequelize.INTEGER,
+        photo: Sequelize.TEXT('long'),
         team: Sequelize.INTEGER,
       },
       {
