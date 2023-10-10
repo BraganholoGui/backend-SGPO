@@ -13,7 +13,8 @@
     "swagger-autogen": "node swagger.js",
     "start": "nodemon src/server.js",
     "test": "jest --watchAll",
-    "start-test": "node — experimental-modules src/server.js"
+    "start-test": "node — experimental-modules src/server.js",
+    "vercer-build": "yarn sequelize db:migrate"
   },
   "dependencies": {
     "@babel/cli": "^7.17.6",
