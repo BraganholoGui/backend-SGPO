@@ -19,6 +19,10 @@ class Material extends Model {
     );
     return this;
   }
+
+  static associate(models) {
+    this.hasMany(models.Stock, {foreignKey: 'material'})
+  }
 }
 
 export default Material;

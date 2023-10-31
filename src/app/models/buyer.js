@@ -19,6 +19,7 @@ class Buyer extends Model {
 
   static associate(models) {
     this.belongsTo(models.Person, {foreignKey: 'person'})
+    this.hasMany(models.Sale, {foreignKey: 'buyer'})
   }
 }
 

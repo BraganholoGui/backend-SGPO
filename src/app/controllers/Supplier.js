@@ -9,52 +9,59 @@ import Role from '../models/role.js';
 import Contact from '../models/contact.js';
 import utils from './utils.js';
 import { Op } from 'sequelize';
+import SupplierPurchase from '../models/supplierPurchase.js';
 
 const sequelize = database.connection;
 
 let include = [
-   
+
 ];
 
 class SupplierController {
     async index(req, res) {
         let cnpj = req.query.cnpj;
-		let where = {}
-		if (cnpj) {
-			where.cnpj = {
-				[Op.like]: `%${cnpj}%`
-			}
-		}
+        let where = {}
+        if (cnpj) {
+            where.cnpj = {
+                [Op.like]: `%${cnpj}%`
+            }
+        }
 
         let nameWhere = req.query.name;
         if (nameWhere) {
-            include.push( utils.include(Person, { name:{
-                [Op.like]: `%${nameWhere}%`
-            } }, true, null, [
-                utils.include(Contact, { }, true, null, null, null),
+            include.push(utils.include(Person, {
+                name: {
+                    [Op.like]: `%${nameWhere}%`
+                }
+            }, true, null, [
+                utils.include(Contact, {}, true, null, null, null),
             ], null))
         }
-        
+
         let emailWhere = req.query.email;
         if (emailWhere) {
-            include.push( utils.include(Person, { }, true, null, [
-                utils.include(Contact, {email: {
-                    [Op.like]: `%${emailWhere}%`
-                } }, true, null, null, null),
+            include.push(utils.include(Person, {}, true, null, [
+                utils.include(Contact, {
+                    email: {
+                        [Op.like]: `%${emailWhere}%`
+                    }
+                }, true, null, null, null),
             ], null))
         }
         let phoneWhere = req.query.phone;
         if (phoneWhere) {
-            include.push( utils.include(Person, { }, true, null, [
-                utils.include(Contact, {phone: {
-                    [Op.like]: `%${phoneWhere}%`
-                } }, true, null, null, null),
+            include.push(utils.include(Person, {}, true, null, [
+                utils.include(Contact, {
+                    phone: {
+                        [Op.like]: `%${phoneWhere}%`
+                    }
+                }, true, null, null, null),
             ], null))
         }
 
-        if(!nameWhere && !emailWhere && !phoneWhere){
-            include.push( utils.include(Person, { }, false, null, [
-                utils.include(Contact, { }, false, null, null, null),
+        if (!nameWhere && !emailWhere && !phoneWhere) {
+            include.push(utils.include(Person, {}, false, null, [
+                utils.include(Contact, {}, false, null, null, null),
             ], null))
         }
 
@@ -170,22 +177,37 @@ class SupplierController {
     }
 
     async delete(req, res) {
-
-        const supplier = await Supplier.findOne({
-            where: {
-                id: req.params.id
-            }
-        });
-
-        if (!supplier)
-            return res.status(400).json({
-                error: 'This Supplier does not exists!'
+        let include = [utils.include(SupplierPurchase, { supplier: req.params.id }, false, null, null, null)]
+        let transaction = await sequelize.transaction();
+        try {
+            const supplier = await Supplier.findOne({
+                where: {
+                    id: req.params.id
+                }, include
             });
 
-        await supplier.destroy();
-        return res.status(200).json({
-            message: 'Supplier successfully deleted!'
-        });
+            if (!supplier)
+                return res.status(400).json({
+                    error: 'This Supplier does not exists!'
+                });
+
+            if (supplier.SupplierPurchases.length > 0) {
+                supplier.SupplierPurchases.map(item => {
+                    item.destroy({ where: { id: item.id } });
+                })
+            }
+
+            await supplier.destroy();
+
+            await transaction.commit();
+            return res.status(200).json({
+                message: 'Supplier successfully deleted!'
+            });
+
+        } catch (err) {
+            await transaction.rollback();
+            console.log(err)
+        }
     }
 
 }

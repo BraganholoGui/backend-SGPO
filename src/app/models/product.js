@@ -20,6 +20,10 @@ class Product extends Model {
     );
     return this;
   }
+
+  static associate(models) {
+    this.hasMany(models.Stock, {foreignKey: 'product'})
+  }
 }
 
 export default Product;

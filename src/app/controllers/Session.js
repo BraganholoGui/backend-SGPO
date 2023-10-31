@@ -82,8 +82,12 @@ class SessionController {
     try {
         let data = req.body;
 
-        let validPassword = await bcrypt.compare(data.oldPassword, user.password_hash);
-        validPassword = true
+        let validPassword;
+        if(data.forgotPassword){
+          validPassword = true
+        }else{
+          validPassword = await bcrypt.compare(data.oldPassword, user.password_hash);
+        }
         if (!validPassword) return res.status(400).send('Invalid Password.')
 
         if (data.newPass) {

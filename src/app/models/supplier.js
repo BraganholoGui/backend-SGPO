@@ -18,6 +18,7 @@ class Supplier extends Model {
 
   static associate(models) {
     this.belongsTo(models.Person, {foreignKey: 'person'})
+    this.hasMany(models.SupplierPurchase, {foreignKey: 'supplier'})
   }
 }
 

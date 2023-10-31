@@ -1,12 +1,13 @@
 import 'dotenv';
-import database from '../../database/index.js';
 import Material from '../models/material.js';
 import content from './content.js';
 import Stock from '../models/stock.js';
 import Purchase from '../models/purchase.js';
 import SupplierPurchase from '../models/supplierPurchase.js';
 import { Op } from 'sequelize';
+import utils from './utils.js';
 
+import database from '../../database/index.js';
 const sequelize = database.connection;
 
 class MaterialController {
@@ -152,18 +153,25 @@ class MaterialController {
     }
 
     async delete(req, res) {
+        let include = [utils.include(Stock, { material: req.params.id }, false, null, null, null)]
+        let transaction = await sequelize.transaction();
         try {
 
             const material = await Material.findOne({
                 where: {
                     id: req.params.id
-                }
+                }, include
             });
 
             if (!material)
                 return res.status(400).json({
                     error: 'This Material does not exists!'
                 });
+            if (material.Stocks.length > 0) {
+                material.Stocks.map(item => {
+                    item.destroy({ where: { id: item.id } });
+                })
+            }
 
             const purchases = await Purchase.findAll({
                 where: {
@@ -176,10 +184,13 @@ class MaterialController {
 
             await Purchase.destroy({ where: { material: req.params.id } });
             await Material.destroy({ where: { id: req.params.id } });
+
+            await transaction.commit();
             return res.status(200).json({
                 message: 'Material successfully deleted!'
             });
         } catch (e) {
+            await transaction.rollback();
             console.log(e)
         }
     }

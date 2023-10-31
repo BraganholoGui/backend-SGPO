@@ -1,7 +1,15 @@
 import { Op } from 'sequelize';
 import Team from '../models/team.js';
+import TeamUser from '../models/teamUser.js';
 import content from './content.js';
+import utils from './utils.js';
+import database from '../../database/index.js';
+const sequelize = database.connection;
 
+
+let include = [
+
+];
 class TeamController {
 
 	async index(req, res) {
@@ -26,7 +34,7 @@ class TeamController {
 
 	async getById(req, res) {
 
-		const team = await Team.findOne({ where: { id: req.params.id,  } });
+		const team = await Team.findOne({ where: { id: req.params.id, } });
 
 		return res.status(200).json({
 			team,
@@ -52,15 +60,28 @@ class TeamController {
 	}
 
 	async delete(req, res) {
+		let transaction = await sequelize.transaction();
+		try {
+			include.push(utils.include(TeamUser, { team: req.params.id }, false, null, null, null))
+			const team = await Team.findOne({ where: { id: req.params.id }, include });
 
-		const team = await Team.findOne({ where: { id: req.params.id } });
+			if (!team)
+				return res.s1tatus(400).json({ error: 'This Team does not exists!' });
 
-		if (!team)
-			return res.s1tatus(400).json({ error: 'This Team does not exists!' });
+			if (team.TeamUsers.length > 0) {
+				team.TeamUsers.map(item => {
+					item.destroy({ where: { id: item.id } });
+				})
+			}
 
-		await team.destroy({ where: { id: req.params.id } });
+			await team.destroy({ where: { id: req.params.id } });
 
-		return res.status(200).json({ message: 'Team successfully deleted!' });
+			await transaction.commit();
+			return res.status(200).json({ message: 'Team successfully deleted!' });
+		} catch (err) {
+			await transaction.rollback();
+			console.log(err)
+		}
 	}
 }
 

@@ -154,18 +154,26 @@ class ProductController {
     }
 
     async delete(req, res) {
+        let include = [utils.include(Stock, { product: req.params.id }, false, null, null, null)]
+        let transaction = await sequelize.transaction();
         try {
 
             const product = await Product.findOne({
                 where: {
                     id: req.params.id
-                }
+                }, include
             });
 
             if (!product)
                 return res.status(400).json({
                     error: 'This Product does not exists!'
                 });
+
+            if (product.Stocks.length > 0) {
+                product.Stocks.map(item => {
+                    item.destroy({ where: { id: item.id } });
+                })
+            }
 
             const purchases = await Purchase.findAll({
                 where: {
@@ -188,6 +196,7 @@ class ProductController {
             })
 
             await Product.destroy({ where: { id: req.params.id } });
+            await transaction.commit();
             return res.status(200).json({
                 message: 'Product successfully deleted!'
             });
