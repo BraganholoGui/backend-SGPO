@@ -1,18 +1,9 @@
-#
+# Versão node
 v16.14.0
+## Projeto.
+SGPO - Sistema de Gestão de Processos Operacionais
 
-npx sequelize-cli migration:generate --name create-clientes
-yarn sequelize migration:create --name=create-users
-yarn sequelize seed:generate --name users
-
-npx sequelize-cli db:migrate
-yarn sequelize db:migrate
-yarn sequelize db:seed:all
-
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
-
-flush privileges;
-## Esse projeto foi desenvolvido em Node.js e contem API's necessárias para o sistema do MA - Governance.
+## Esse projeto foi desenvolvido em Node.js e contem API's necessárias para o sistema SGPO.
 
 ### 📋 Tabela de Conteúdos
 
@@ -24,29 +15,8 @@ flush privileges;
    * [Tecnologias](#🛠-Tecnologias)
 
 ### ⚒️ Status-do-Projeto
-	🚧  Em construção...  🚧
+	🚧  Em Produção...  🚧
 
-### ✔️ Features
-
-- [x] Cadastro de usuário
-- [x] Cadastro de demanda
-- [x] Cadastro de tipo de demanda
-- [x] Cadastro de despesa
-- [x] Cadastro de tipo de despesa
-- [x] Cadastro de meta
-- [x] Cadastro de tipo de instituto
-- [x] Cadastro de origem
-- [x] Cadastro de forma de pagamentos
-- [x] Cadastro de demandante
-- [x] Cadastro de proposição
-- [x] Cadastro de tipo de proposição
-- [x] Cadastro de formulaário de recibo
-- [x] Cadastro de receita
-- [x] Cadastro de tipo de receita
-- [x] Cadastro de esquadrão
-- [x] Cadastro de tarefa
-- [x] Cadastro de tema
-- [x] Cadastro de demandante
 
 ### ❗ Pré-requisitos
 
@@ -54,22 +24,12 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 [Git](https://git-scm.com), [Node.js](https://nodejs.org/en/). 
 Além disto é bom ter um editor para trabalhar com o código como [VSCode](https://code.visualstudio.com/)
 
-
-### 🚩 Clone este repositório
-   $ git clone <https://GuilhermeBraganholo@bitbucket.org/danilomendes/ma-governance-api.git>
-
 ### 👉 Configure o .env
-   DB_HOST=128.199.5.141<br />
-   DB_USER="root"<br />
-   DB_PASS="cleanDEV123456!@#"<br />
-   DB_NAME="magovernance"<br />
-   DB_PORT="3306"<br />
-   APP_SECRET="20clean-farm-app20-devops"<br />
-   BASE_URL_FRONT="https://treineaqui.cleandev.com.br/" <br />
-   EMAIL_USER="cleandev.contato@gmail.com"<br />
-   EMAIL_PASS="facilita#2020"<br />
-   CRON_TIMER="0 0 6 * * 1-5"<br />
-   EMAIL_NOTIFICA="danilocesarmendes@gmail.com; breno14mota@gmail.com"<br />
+   DB_HOST="localhost"<br/>
+   DB_USER="root"<br/>
+   DB_PASS="Guilherme123"<br/>
+   DB_NAME="teste"<br/>
+   DB_PORT="3306"<br/>
 
 <hr />
 
@@ -77,7 +37,7 @@ Além disto é bom ter um editor para trabalhar com o código como [VSCode](http
    $ yarn
 
 ### 🚩 Execute a aplicação em modo de desenvolvimento
-   $ yarn dev
+   $ yarn run start
 
 <hr />
 
@@ -86,31 +46,26 @@ Além disto é bom ter um editor para trabalhar com o código como [VSCode](http
 <br />
 <hr />
 
-### ☁️ Rodando-o-Back-End-(servidor)
-
-```bash
-# Acesse a pasta do projeto no terminal/cmd
-$ cd ambiente
-
-# Vá para a pasta ma-governance-api
-$ cd ma-governance-api
-
-# Atualize o repositório
-$ git pull
-
-# Volte para a pasta ambiente
-$ cd ..
-
-# Pare a aplicação docker
-$ docker-compose stop ma-governance-api
-
-# Inicie a aplicação novamente com o docker
-$ docker-compose up -d ma-governance-api
-
-```
-
 ### 🛠-Tecnologias
 
 As seguintes ferramentas foram usadas na construção do projeto:
 
 - [Node.js](https://nodejs.org/en/)
+
+### 🛠- Comandos Necessatios
+
+#### 🛠- Configuração do banco de dados
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';<br>
+flush privileges;
+
+#### 🛠- Criar migration
+yarn sequelize migration:create --name=create-users
+
+#### 🛠- Criar seeds
+yarn sequelize seed:generate --name users
+
+#### 🛠- Subir models no banco de dados
+yarn sequelize db:migrate
+
+#### 🛠- Subir seeds no banco de dados
+yarn sequelize db:seed:all

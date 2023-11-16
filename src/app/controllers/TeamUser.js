@@ -104,7 +104,7 @@ class TeamUserController {
                     team: req.params.id,
                     user: user.user ? user.user : user.id
                 }
-                team_user_stored = await TeamUser.create(obj);
+                await TeamUser.create(obj);
             })
 
 
